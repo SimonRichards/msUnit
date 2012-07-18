@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Reflection;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace msUnit {
     class TestAssembly {
@@ -15,7 +16,7 @@ namespace msUnit {
             _testAssembly = Assembly.UnsafeLoadFrom(assemblyName);
             _testClasses = (
                 from type in _testAssembly.GetTypes()
-                where type.GetCustomAttributes(typeof(TestClass), true).Any()
+                where type.GetCustomAttributes(typeof(TestClassAttribute), true).Any()
                 select new TestClass(type.GetConstructors(), type.FullName)).ToList();
 
             var initializeClasses = _testClasses.Where(testClass => testClass.HasAssemblyInitialize).ToList();
@@ -35,11 +36,18 @@ namespace msUnit {
         }
 
         internal void Test() {
-            _initializeClass.AssemblyInitialize();
+            if (_initializeClass != null) {
+                _initializeClass.AssemblyInitialize();
+            }
+            if (!_testClasses.Any()) {
+                throw new Exception("No test classes found.");
+            }
             foreach (var testClass in _testClasses) {
                 testClass.Test();
             }
-            _cleanupClass.AssemblyCleanup();
+            if (_cleanupClass != null) {
+                _cleanupClass.AssemblyCleanup();
+            }
         }
     }
 }

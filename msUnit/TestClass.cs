@@ -27,8 +27,12 @@ namespace msUnit {
             _methods = testInstance.GetType().GetMethods();
             var classInitializeMethods = _methods.SelectWithAttribute(typeof(ClassInitializeAttribute)).ToList();
             var classCleanupMethods = _methods.SelectWithAttribute(typeof(ClassCleanupAttribute)).ToList();
-            var testMethods = _methods.SelectWithAttribute(typeof(TestMethodAttribute));
+            var testMethods = _methods.SelectWithAttribute(typeof(TestMethodAttribute)).ToList();
             
+            if (!testMethods.Any()) {
+                throw new Exception("No test methods in " + Name);
+            }
+
             if (classInitializeMethods.Count() > 1) {
                 throw new Exception("Too many methods marked with ClassInitializeAttribute in " + Name);
             }

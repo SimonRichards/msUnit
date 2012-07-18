@@ -16,7 +16,11 @@ namespace msUnit {
                 Console.WriteLine("{0} not found.", args[0]);
             }
 
-            new TestAssembly(args[0]).Test();
+            try {
+                new TestAssembly(args[0]).Test();
+            } catch(Exception e) {
+                Console.WriteLine(e.Message);
+            }
         }
     }
 }
