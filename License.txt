@@ -1,0 +1,1 @@
+Files in msUnitLib licensed separately, for everything else see license in msUnit
