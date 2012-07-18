@@ -15,7 +15,7 @@ namespace NUnit.Framework
 	/// {}
 	/// </example>
 	[AttributeUsage(AttributeTargets.Class, AllowMultiple=true, Inherited=true)]
-	public class TestFixtureAttribute : Attribute
+	public class TestClassAttribute : Attribute
 	{
 		private string description;
 
@@ -32,7 +32,7 @@ namespace NUnit.Framework
         /// <summary>
         /// Default constructor
         /// </summary>
-        public TestFixtureAttribute() : this( null ) { }
+        public TestClassAttribute() : this( null ) { }
         
         /// <summary>
         /// Construct with a object[] representing a set of arguments. 
@@ -40,7 +40,7 @@ namespace NUnit.Framework
         /// type arguments and constructor arguments.
         /// </summary>
         /// <param name="arguments"></param>
-        public TestFixtureAttribute(params object[] arguments)
+        public TestClassAttribute(params object[] arguments)
         {
             this.arguments = arguments == null
                 ? new object[0]
@@ -94,7 +94,7 @@ namespace NUnit.Framework
         }
 
         /// <summary>
-        /// Gets or sets a value indicating whether this <see cref="TestFixtureAttribute"/> should be ignored.
+        /// Gets or sets a value indicating whether this <see cref="TestClassAttribute"/> should be ignored.
         /// </summary>
         /// <value><c>true</c> if ignore; otherwise, <c>false</c>.</value>
         public bool Ignore

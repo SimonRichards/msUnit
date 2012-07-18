@@ -9,7 +9,7 @@ namespace NUnit.Framework
     using System;
 
     /// <summary>
-    /// Adding this attribute to a method within a <seealso cref="TestFixtureAttribute"/> 
+    /// Adding this attribute to a method within a <seealso cref="TestClassAttribute"/> 
     /// class makes the method callable from the NUnit test runner. There is a property 
     /// called Description which is optional which you can provide a more detailed test
     /// description. This class cannot be inherited.
