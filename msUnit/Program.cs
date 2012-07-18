@@ -16,8 +16,7 @@ namespace msUnit {
                 Console.WriteLine("{0} not found.", args[0]);
             }
 
-            var testRun = AppDomain.CreateDomain("testDomain");
-            testRun.Load(args[0]);
+            new TestAssembly(args[0]).Test();
         }
     }
 }
