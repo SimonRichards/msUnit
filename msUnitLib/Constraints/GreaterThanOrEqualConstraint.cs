@@ -6,7 +6,7 @@
 
 using System;
 
-namespace NUnit.Framework.Constraints
+namespace Microsoft.VisualStudio.TestTools.UnitTesting.Constraints
 {
     /// <summary>
     /// Tests whether a value is greater than or equal to the value supplied to its constructor

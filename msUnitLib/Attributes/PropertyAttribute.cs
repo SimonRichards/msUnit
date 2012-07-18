@@ -8,7 +8,7 @@ using System;
 using System.Collections;
 using System.Collections.Specialized;
 
-namespace NUnit.Framework
+namespace Microsoft.VisualStudio.TestTools.UnitTesting
 {
 	/// <summary>
 	/// PropertyAttribute is used to attach information to a test as a name/value pair..

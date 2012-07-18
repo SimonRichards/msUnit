@@ -6,7 +6,7 @@
 
 using System;
 
-namespace NUnit.Framework
+namespace Microsoft.VisualStudio.TestTools.UnitTesting
 {
     /// <summary>
     /// Used to mark a field for use as a datapoint when executing a theory

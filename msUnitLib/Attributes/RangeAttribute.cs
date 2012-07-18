@@ -7,7 +7,7 @@
 using System;
 using System.Collections;
 
-namespace NUnit.Framework
+namespace Microsoft.VisualStudio.TestTools.UnitTesting
 {
     /// <summary>
     /// RangeAttribute is used to supply a range of values to an

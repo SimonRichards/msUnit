@@ -5,7 +5,7 @@
 // ****************************************************************
 using System;
 
-namespace NUnit.Framework
+namespace Microsoft.VisualStudio.TestTools.UnitTesting
 {
 	/// <summary>
 	/// Summary description for MaxTimeAttribute.

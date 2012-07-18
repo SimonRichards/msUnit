@@ -6,7 +6,7 @@
 
 using System;
 
-namespace NUnit.Framework.Constraints
+namespace Microsoft.VisualStudio.TestTools.UnitTesting.Constraints
 {
     /// <summary>
     /// TypeConstraint is the abstract base for constraints

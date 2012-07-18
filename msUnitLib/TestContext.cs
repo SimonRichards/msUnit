@@ -7,7 +7,7 @@ using System;
 using System.Collections;
 using System.Runtime.Remoting.Messaging;
 
-namespace NUnit.Framework
+namespace Microsoft.VisualStudio.TestTools.UnitTesting
 {
     /// <summary>
     /// Provide the context information of the current test

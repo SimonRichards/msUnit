@@ -6,9 +6,9 @@
 
 using System;
 using System.ComponentModel;
-using NUnit.Framework.Constraints;
+using Microsoft.VisualStudio.TestTools.UnitTesting.Constraints;
 
-namespace NUnit.Framework
+namespace Microsoft.VisualStudio.TestTools.UnitTesting
 {
     /// <summary>
     /// Provides static methods to express the assumptions

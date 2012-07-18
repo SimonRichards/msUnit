@@ -7,7 +7,7 @@
 using System;
 using System.Collections;
 
-namespace NUnit.Framework.Constraints
+namespace Microsoft.VisualStudio.TestTools.UnitTesting.Constraints
 {
     /// <summary>
     /// ConstraintExpression represents a compound constraint in the 

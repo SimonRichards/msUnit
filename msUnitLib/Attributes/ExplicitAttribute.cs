@@ -6,7 +6,7 @@
 
 using System;
 
-namespace NUnit.Framework
+namespace Microsoft.VisualStudio.TestTools.UnitTesting
 {
 	/// <summary>
 	/// ExplicitAttribute marks a test or test fixture so that it will

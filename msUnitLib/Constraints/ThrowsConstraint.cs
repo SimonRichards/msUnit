@@ -6,7 +6,7 @@
 
 using System;
 
-namespace NUnit.Framework.Constraints
+namespace Microsoft.VisualStudio.TestTools.UnitTesting.Constraints
 {
     #region ThrowsConstraint
     /// <summary>

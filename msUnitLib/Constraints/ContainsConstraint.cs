@@ -10,7 +10,7 @@ using System.Collections;
 using System.Collections.Generic;
 #endif
 
-namespace NUnit.Framework.Constraints
+namespace Microsoft.VisualStudio.TestTools.UnitTesting.Constraints
 {
 	// TODO Needs tests
 	/// <summary>

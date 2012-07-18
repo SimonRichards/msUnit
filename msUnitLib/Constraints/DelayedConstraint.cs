@@ -6,7 +6,7 @@
 using System;
 using System.Threading;
 
-namespace NUnit.Framework.Constraints
+namespace Microsoft.VisualStudio.TestTools.UnitTesting.Constraints
 {
     ///<summary>
     /// Applies a delay to the match so that a match can be evaluated in the future.

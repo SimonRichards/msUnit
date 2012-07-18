@@ -8,7 +8,7 @@ using System;
 using System.Text;
 using System.Collections;
 
-namespace NUnit.Framework.Constraints
+namespace Microsoft.VisualStudio.TestTools.UnitTesting.Constraints
 {
     /// <summary>
     /// Static methods used in creating messages

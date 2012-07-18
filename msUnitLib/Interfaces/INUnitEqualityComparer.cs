@@ -5,8 +5,9 @@
 // ****************************************************************
 
 using System;
+using Microsoft.VisualStudio.TestTools.UnitTesting.Constraints;
 
-namespace NUnit.Framework
+namespace Microsoft.VisualStudio.TestTools.UnitTesting
 {
     /// <summary>
     /// 
@@ -20,7 +21,7 @@ namespace NUnit.Framework
         /// <param name="y">The second object to compare</param>
         /// <param name="tolerance">The tolerance to use in the comparison</param>
         /// <returns></returns>
-        bool AreEqual(object x, object y, ref NUnit.Framework.Constraints.Tolerance tolerance);
+        bool AreEqual(object x, object y, ref Tolerance tolerance);
     }
 
 #if CLR_2_0 || CLR_4_0

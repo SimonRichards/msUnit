@@ -8,7 +8,7 @@ using System;
 using System.Collections;
 using System.Reflection;
 
-namespace NUnit.Framework
+namespace Microsoft.VisualStudio.TestTools.UnitTesting
 {
     /// <summary>
     /// Randomizer returns a set of random values in a repeatable

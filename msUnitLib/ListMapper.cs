@@ -8,7 +8,7 @@ using System;
 using System.Collections;
 using System.Reflection;
 
-namespace NUnit.Framework
+namespace Microsoft.VisualStudio.TestTools.UnitTesting
 {
 	/// <summary>
 	/// ListMapper is used to transform a collection used as an actual argument

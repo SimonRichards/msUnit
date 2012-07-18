@@ -8,7 +8,7 @@ using System;
 using System.Collections;
 using System.Reflection;
 
-namespace NUnit.Framework.Constraints
+namespace Microsoft.VisualStudio.TestTools.UnitTesting.Constraints
 {
     /// <summary>
     /// PropertyExistsConstraint tests that a named property

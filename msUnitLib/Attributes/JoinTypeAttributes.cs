@@ -6,7 +6,7 @@
 
 using System;
 
-namespace NUnit.Framework
+namespace Microsoft.VisualStudio.TestTools.UnitTesting
 {
     /// <summary>
     /// Marks a test to use a combinatorial join of any argument data 

@@ -9,7 +9,7 @@ using System;
 using System.Text.RegularExpressions;
 #endif
 
-namespace NUnit.Framework.Constraints
+namespace Microsoft.VisualStudio.TestTools.UnitTesting.Constraints
 {
     #region StringConstraint
     /// <summary>

@@ -5,7 +5,7 @@
 // ****************************************************************
 using System;
 
-namespace NUnit.Framework
+namespace Microsoft.VisualStudio.TestTools.UnitTesting
 {
     /// <summary>
     /// The Iz class is a synonym for Is intended for use in VB,

@@ -6,7 +6,7 @@
 
 using System;
 
-namespace NUnit.Framework
+namespace Microsoft.VisualStudio.TestTools.UnitTesting
 {
 	/// <summary>
 	/// Attribute used to provide descriptive text about a 

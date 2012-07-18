@@ -7,9 +7,9 @@
 using System;
 using System.IO;
 using System.ComponentModel;
-using NUnit.Framework.Constraints;
+using Microsoft.VisualStudio.TestTools.UnitTesting.Constraints;
 
-namespace NUnit.Framework
+namespace Microsoft.VisualStudio.TestTools.UnitTesting
 {
 	/// <summary>
 	/// Summary description for FileAssert.

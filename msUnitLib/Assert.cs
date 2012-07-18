@@ -7,9 +7,9 @@
 using System;
 using System.Collections;
 using System.ComponentModel;
-using NUnit.Framework.Constraints;
+using Microsoft.VisualStudio.TestTools.UnitTesting.Constraints;
 
-namespace NUnit.Framework
+namespace Microsoft.VisualStudio.TestTools.UnitTesting
 {
     /// <summary>
     /// Delegate used by tests that execute code and

@@ -12,7 +12,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 #endif
 using System.Xml.Serialization;
 
-namespace NUnit.Framework.Constraints
+namespace Microsoft.VisualStudio.TestTools.UnitTesting.Constraints
 {
 #if !NETCF
     #region BinarySerializableConstraint

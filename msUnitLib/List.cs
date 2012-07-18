@@ -6,9 +6,9 @@
 
 using System;
 using System.Collections;
-using NUnit.Framework.Constraints;
+using Microsoft.VisualStudio.TestTools.UnitTesting.Constraints;
 
-namespace NUnit.Framework
+namespace Microsoft.VisualStudio.TestTools.UnitTesting
 {
 	/// <summary>
 	/// The List class is a helper class with properties and methods

@@ -8,7 +8,7 @@ using System;
 using System.Collections;
 using System.Reflection;
 
-namespace NUnit.Framework
+namespace Microsoft.VisualStudio.TestTools.UnitTesting
 {
     /// <summary>
     /// RandomAttribute is used to supply a set of random values

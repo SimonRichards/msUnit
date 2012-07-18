@@ -3,7 +3,7 @@
 // obtain a copy of the license at http://nunit.org.
 // ****************************************************************
 
-namespace NUnit.Framework
+namespace Microsoft.VisualStudio.TestTools.UnitTesting
 {
 	using System;
 

@@ -6,10 +6,10 @@
 
 using System;
 using System.Collections;
-using NUnit.Framework;
-using NUnit.Framework.Constraints;
+using Microsoft.VisualStudio.TestTools.UnitTesting.Constraints;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace NUnit.Framework
+namespace Microsoft.VisualStudio.TestTools.UnitTesting
 {
 	/// <summary>
 	/// AssertionHelper is an optional base class for user tests,

@@ -8,7 +8,7 @@ using System;
 using System.IO;
 using System.Collections;
 
-namespace NUnit.Framework.Constraints
+namespace Microsoft.VisualStudio.TestTools.UnitTesting.Constraints
 {
     #region PathConstraint
     /// <summary>

@@ -7,7 +7,7 @@
 using System;
 using System.Threading;
 
-namespace NUnit.Framework
+namespace Microsoft.VisualStudio.TestTools.UnitTesting
 {
     /// <summary>
     /// Used on a method, marks the test with a timeout value in milliseconds. 

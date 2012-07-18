@@ -11,7 +11,7 @@ using System.Reflection;
 using System.Collections.Generic;
 #endif
 
-namespace NUnit.Framework.Constraints
+namespace Microsoft.VisualStudio.TestTools.UnitTesting.Constraints
 {
     /// <summary>
     /// ComparisonAdapter class centralizes all comparisons of

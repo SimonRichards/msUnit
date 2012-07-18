@@ -8,7 +8,7 @@ using System;
 using System.Collections;
 using System.Collections.Specialized;
 
-namespace NUnit.Framework
+namespace Microsoft.VisualStudio.TestTools.UnitTesting
 {
     /// <summary>
     /// TestCaseAttribute is used to mark parameterized test cases

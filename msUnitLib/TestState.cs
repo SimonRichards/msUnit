@@ -5,7 +5,7 @@
 // ****************************************************************
 using System;
 
-namespace NUnit.Framework
+namespace Microsoft.VisualStudio.TestTools.UnitTesting
 {
 	/// <summary>
 	/// The ResultState enum indicates the result of running a test

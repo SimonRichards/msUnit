@@ -4,7 +4,7 @@
 // copyright ownership at http://nunit.org.
 // ****************************************************************
 
-namespace NUnit.Framework
+namespace Microsoft.VisualStudio.TestTools.UnitTesting
 {
 	using System;
 
