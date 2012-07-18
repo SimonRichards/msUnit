@@ -1,0 +1,7 @@
+*.pdb
+*_ReSharper*
+*.exe
+*.dll
+*/obj/*
+*/bin/*
+TestResults/*
