@@ -17,7 +17,11 @@ namespace msUnit {
             }
 
             try {
-                new TestAssembly(args[0]).Test();
+                var assembly = new TestAssembly(args[0]);
+                var output = new ConsoleWriter();
+                assembly.AssemblyErrorHandler += output.AssemblyError;
+                assembly.TestCompleteHandler += output.TestCompleted;
+                assembly.Test();
             } catch(Exception e) {
                 Console.WriteLine(e.Message);
             }

@@ -6,7 +6,7 @@ using System.Reflection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace msUnit {
-    static class Extensions {
+    internal static class Extensions {
         internal static IEnumerable<T> SelectWithAttribute<T>(this IEnumerable<T> searchable, Type attribute)
             where T : ICustomAttributeProvider {
             return from item in searchable

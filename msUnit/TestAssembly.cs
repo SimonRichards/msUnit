@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Reflection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -9,8 +8,8 @@ namespace msUnit {
     class TestAssembly {
         private readonly Assembly _testAssembly;
         private readonly IList<TestClass> _testClasses;
-        private readonly TestClass _initializeClass;
-        private readonly TestClass _cleanupClass;
+        private readonly IList<TestClass> _initializeClasses;
+        private readonly IList<TestClass> _cleanupClasses;
 
         public TestAssembly(string assemblyName) {
             _testAssembly = Assembly.UnsafeLoadFrom(assemblyName);
@@ -19,35 +18,55 @@ namespace msUnit {
                 where type.GetCustomAttributes(typeof(TestClassAttribute), true).Any()
                 select new TestClass(type.GetConstructors(), type.FullName)).ToList();
 
-            var initializeClasses = _testClasses.Where(testClass => testClass.HasAssemblyInitialize).ToList();
-            var cleanupClasses = _testClasses.Where(testClass => testClass.HasAssemblyCleanup).ToList();
-
-            if (initializeClasses.Count > 1) {
-                throw new Exception("Only 1 method may be marked with AssembleInitializeAttribute");
-            } else if (initializeClasses.Count == 1) {
-                _initializeClass = initializeClasses[0];
-            }
-
-            if (cleanupClasses.Count > 1) {
-                throw new Exception("Only 1 method may be marked with AssembleCleanupAttribute");
-            } else if (cleanupClasses.Count == 1) {
-                _cleanupClass = cleanupClasses[0];
-            }
+            _initializeClasses = _testClasses.Where(testClass => testClass.HasAssemblyInitialize).ToList();
+            _cleanupClasses = _testClasses.Where(testClass => testClass.HasAssemblyCleanup).ToList();
         }
 
         internal void Test() {
-            if (_initializeClass != null) {
-                _initializeClass.AssemblyInitialize();
-            }
-            if (!_testClasses.Any()) {
-                throw new Exception("No test classes found.");
-            }
-            foreach (var testClass in _testClasses) {
-                testClass.Test();
-            }
-            if (_cleanupClass != null) {
-                _cleanupClass.AssemblyCleanup();
+            CheckInvariants();
+            AssemblyInitialize();
+            RunTests();
+            AssemblyCleanup();
+        }
+
+        private void CheckInvariants() {
+            if (!_testClasses.Any())
+                AssemblyErrorHandler("No test classes found.");
+            if (_initializeClasses.Count() > 1)
+                AssemblyErrorHandler("Only 1 method may be marked with AssembleInitializeAttribute");
+            if (_cleanupClasses.Count() > 1)
+                AssemblyErrorHandler("Only 1 method may be marked with AssembleCleanupAttribute");
+        }
+
+        private void AssemblyInitialize() {
+            if (_initializeClasses.Any()) {
+                try {
+                    _initializeClasses[0].AssemblyInitialize();
+                } catch (Exception e) {
+                    AssemblyErrorHandler("Assembly initialization failed: " + e.Message);
+                }
             }
         }
+
+        private void RunTests() {
+            foreach (var result in _testClasses.SelectMany(testClass => testClass.Test()))
+                TestCompleteHandler(result);
+        }
+
+        private void AssemblyCleanup() {
+            if (_cleanupClasses.Any()) {
+                try {
+                    _cleanupClasses[0].AssemblyCleanup();
+                } catch (Exception e) {
+                    AssemblyErrorHandler("Assembly cleanup failed: " + e.Message);
+                }
+            }
+        }
+
+        internal event AssemblyError AssemblyErrorHandler = delegate { };
+        internal event TestComplete TestCompleteHandler = delegate { };
+
+        internal delegate void AssemblyError(string details);
+        internal delegate void TestComplete(TestDetails details);
     }
 }
