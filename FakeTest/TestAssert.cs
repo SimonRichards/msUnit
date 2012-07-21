@@ -11,5 +11,10 @@ namespace FakeTest {
         public void TestEquals() {
             Assert.AreEqual(2 * 5, 5 + 5, "wat?");
         }
+
+        [TestMethod]
+        public void TestFailure() {
+            Assert.AreEqual(1, 2, "one does not equal two");
+        }
     }
 }

@@ -17,9 +17,7 @@ namespace Microsoft.VisualStudio.TestTools.UnitTesting
 	[AttributeUsage(AttributeTargets.Class, AllowMultiple=true, Inherited=true)]
 	public class TestClassAttribute : Attribute
 	{
-		private string description;
-
-        private object[] arguments;
+	    private object[] arguments;
         private bool isIgnored;
         private string ignoreReason;
         private string category;
@@ -42,25 +40,19 @@ namespace Microsoft.VisualStudio.TestTools.UnitTesting
         /// <param name="arguments"></param>
         public TestClassAttribute(params object[] arguments)
         {
-            this.arguments = arguments == null
-                ? new object[0]
-                : arguments;
+            this.arguments = arguments ?? new object[0];
 
             for (int i = 0; i < this.arguments.Length; i++)
                 if (arguments[i] is SpecialValue && (SpecialValue)arguments[i] == SpecialValue.Null)
                     arguments[i] = null;
         }
 
-        /// <summary>
-        /// Descriptive text for this fixture
-        /// </summary>
-        public string Description
-		{
-			get { return description; }
-			set { description = value; }
-		}
+	    /// <summary>
+	    /// Descriptive text for this fixture
+	    /// </summary>
+	    public string Description { get; set; }
 
-        /// <summary>
+	    /// <summary>
         /// Gets and sets the category for this fixture.
         /// May be a comma-separated list of categories.
         /// </summary>
@@ -113,7 +105,7 @@ namespace Microsoft.VisualStudio.TestTools.UnitTesting
             set
             {
                 ignoreReason = value;
-                isIgnored = ignoreReason != null && ignoreReason != string.Empty;
+                isIgnored = !string.IsNullOrEmpty(ignoreReason);
             }
         }
 

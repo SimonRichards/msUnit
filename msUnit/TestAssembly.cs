@@ -16,7 +16,7 @@ namespace msUnit {
             _testClasses = (
                 from type in _testAssembly.GetTypes()
                 where type.GetCustomAttributes(typeof(TestClassAttribute), true).Any()
-                select new TestClass(type.GetConstructors(), type.FullName)).ToList();
+                select new TestClass(type)).ToList();
 
             _initializeClasses = _testClasses.Where(testClass => testClass.HasAssemblyInitialize).ToList();
             _cleanupClasses = _testClasses.Where(testClass => testClass.HasAssemblyCleanup).ToList();
@@ -31,19 +31,18 @@ namespace msUnit {
 
         private void CheckInvariants() {
             if (!_testClasses.Any())
-                AssemblyErrorHandler("No test classes found.");
+                AssemblyErrorHandler(new Exception("No test classes found."));
             if (_initializeClasses.Count() > 1)
-                AssemblyErrorHandler("Only 1 method may be marked with AssembleInitializeAttribute");
+                AssemblyErrorHandler(new Exception("Only 1 method may be marked with AssembleInitializeAttribute"));
             if (_cleanupClasses.Count() > 1)
-                AssemblyErrorHandler("Only 1 method may be marked with AssembleCleanupAttribute");
+                AssemblyErrorHandler(new Exception("Only 1 method may be marked with AssembleCleanupAttribute"));
         }
 
         private void AssemblyInitialize() {
             if (_initializeClasses.Any()) {
-                try {
-                    _initializeClasses[0].AssemblyInitialize();
-                } catch (Exception e) {
-                    AssemblyErrorHandler("Assembly initialization failed: " + e.Message);
+                Exception thrown;
+                if (!_initializeClasses[0].AssemblyInitialize(out thrown)) {
+                    AssemblyErrorHandler(thrown);
                 }
             }
         }
@@ -55,10 +54,9 @@ namespace msUnit {
 
         private void AssemblyCleanup() {
             if (_cleanupClasses.Any()) {
-                try {
-                    _cleanupClasses[0].AssemblyCleanup();
-                } catch (Exception e) {
-                    AssemblyErrorHandler("Assembly cleanup failed: " + e.Message);
+                Exception thrown;
+                if (!_cleanupClasses[0].AssemblyCleanup(out thrown)) {
+                    AssemblyErrorHandler(thrown);
                 }
             }
         }
@@ -66,7 +64,7 @@ namespace msUnit {
         internal event AssemblyError AssemblyErrorHandler = delegate { };
         internal event TestComplete TestCompleteHandler = delegate { };
 
-        internal delegate void AssemblyError(string details);
+        internal delegate void AssemblyError(Exception details);
         internal delegate void TestComplete(TestDetails details);
     }
 }
