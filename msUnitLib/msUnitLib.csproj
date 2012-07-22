@@ -46,7 +46,7 @@
     <Compile Include="Assert.cs" />
     <Compile Include="AssertionHelper.cs" />
     <Compile Include="Assume.cs" />
-    <Compile Include="Attributes\CategoryAttribute.cs" />
+    <Compile Include="Attributes\TestCategoryAttribute.cs" />
     <Compile Include="Attributes\AssemblyCleanupAttribute.cs" />
     <Compile Include="Attributes\AssemblyInitializeAttribute.cs" />
     <Compile Include="Attributes\DatapointAttributes.cs" />

@@ -12,7 +12,7 @@ namespace Microsoft.VisualStudio.TestTools.UnitTesting
 	/// Attribute used to apply a category to a test
 	/// </summary>
 	[AttributeUsage(AttributeTargets.Class|AttributeTargets.Method|AttributeTargets.Assembly, AllowMultiple=true, Inherited=true)]
-	public class CategoryAttribute : Attribute
+	public class TestCategoryAttribute : Attribute
 	{
 		/// <summary>
 		/// The name of the category
@@ -30,7 +30,7 @@ namespace Microsoft.VisualStudio.TestTools.UnitTesting
         /// runnable.
 		/// </summary>
 		/// <param name="name">The name of the category</param>
-		public CategoryAttribute(string name)
+		public TestCategoryAttribute(string name)
 		{
 			this.categoryName = name.Trim();
 		}
@@ -39,7 +39,7 @@ namespace Microsoft.VisualStudio.TestTools.UnitTesting
 		/// Protected constructor uses the Type name as the name
 		/// of the category.
 		/// </summary>
-		protected CategoryAttribute()
+		protected TestCategoryAttribute()
 		{
 			this.categoryName = this.GetType().Name;
 			if ( categoryName.EndsWith( "Attribute" ) )
