@@ -120,7 +120,7 @@ namespace msUnit {
         private IEnumerable<TestDetails> FailWholeClass(string message) {
             return _testMethods.Select(method => new TestDetails {
                 Passed = false,
-                Thrown = new Exception(message),
+                Thrown = new TestException(message),
                 Time = TimeSpan.Zero,
                 Name = method.Name
             });

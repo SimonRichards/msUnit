@@ -16,5 +16,10 @@ namespace FakeTest {
         public void TestFailure() {
             Assert.AreEqual(1, 2, "one does not equal two");
         }
+
+        [TestMethod, TestCategory("Don't run")]
+        public void TestSkip() {
+            throw new Exception("This test should be skipped");
+        }
     }
 }

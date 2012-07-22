@@ -46,7 +46,7 @@ namespace msUnit {
                 return true;
             }
             if (!Valid) {
-                thrown = new Exception(Error);
+                thrown = new TestException(Error);
                 return false;
             }
             try {

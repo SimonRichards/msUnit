@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace msUnit {
     class ConsoleWriter {
@@ -18,7 +15,7 @@ namespace msUnit {
             } else {
                 Console.ForegroundColor = ConsoleColor.DarkRed;
                 Console.WriteLine("Failed\t" + details.Name);
-                Console.WriteLine(details.Thrown.Message);
+                Console.WriteLine(details.Thrown);
             }
             Console.ForegroundColor = originalColour;
         }

@@ -33,11 +33,11 @@ namespace msUnit {
 
         private void CheckInvariants() {
             if (!_testClasses.Any())
-                AssemblyErrorHandler(new Exception("No test classes found."));
+                AssemblyErrorHandler(new TestException("No test classes found."));
             if (_initializeClasses.Count() > 1)
-                AssemblyErrorHandler(new Exception("Only 1 method may be marked with AssembleInitializeAttribute"));
+                AssemblyErrorHandler(new TestException("Only 1 method may be marked with AssembleInitializeAttribute"));
             if (_cleanupClasses.Count() > 1)
-                AssemblyErrorHandler(new Exception("Only 1 method may be marked with AssembleCleanupAttribute"));
+                AssemblyErrorHandler(new TestException("Only 1 method may be marked with AssembleCleanupAttribute"));
         }
 
         private void AssemblyInitialize() {
