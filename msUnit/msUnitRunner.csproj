@@ -9,7 +9,7 @@
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>msUnit</RootNamespace>
-    <AssemblyName>msUnit</AssemblyName>
+    <AssemblyName>MSTest</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <TargetFrameworkProfile>
     </TargetFrameworkProfile>
@@ -35,6 +35,9 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject>msUnit.Program</StartupObject>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -46,7 +49,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AuxiliaryMethod.cs" />
+    <Compile Include="CategoryFilter.cs" />
     <Compile Include="ConsoleWriter.cs" />
+    <Compile Include="IFilter.cs" />
+    <Compile Include="NameFilter.cs" />
+    <Compile Include="Options.cs" />
     <Compile Include="TestDetails.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

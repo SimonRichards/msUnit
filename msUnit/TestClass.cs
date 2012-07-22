@@ -6,7 +6,6 @@ using System.Reflection;
 using System.Text;
 using System.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Threading;
 
 namespace msUnit {
     class TestClass {
@@ -24,13 +23,17 @@ namespace msUnit {
         public string Name { get; private set; }
         private readonly object[] _noArgs = new object[] { };
 
-        public TestClass(Type type) {
+        public TestClass(Type type, IEnumerable<IFilter> filters) {
             _type = type;
             var validCtor = type.GetConstructor(new Type[] { });
             _ctor = validCtor == null ? (Func<object>)null : () => validCtor.Invoke(_noArgs);
             Name = type.Name;
             IList<MethodInfo> methods = _type.GetMethods();
-            _testMethods = methods.Where(method => method.GetCustomAttributes(typeof(TestMethodAttribute), true).Any()).ToList();
+            _testMethods = (
+                from method in methods
+                where method.GetCustomAttributes(typeof(TestMethodAttribute), true).Any()
+                where filters.All(filter => filter.Test(method))
+                select method).ToList();
             _assemblyInitialize = new AuxiliaryMethod<AssemblyInitializeAttribute>(methods, @static: true);
             _assemblyCleanup = new AuxiliaryMethod<AssemblyCleanupAttribute>(methods, @static: true);
             _classInitialize = new AuxiliaryMethod<ClassInitializeAttribute>(methods, @static: true);
@@ -42,8 +45,11 @@ namespace msUnit {
         }
 
         public IEnumerable<TestDetails> Test() {
-            string message;
-            return IsClassValid(out message) ? RunTestsAndCleanup() : FailWholeClass(message);
+            if (_testMethods.Any()) {
+                string message;
+                return IsClassValid(out message) ? RunTestsAndCleanup() : FailWholeClass(message);
+            }
+            return new TestDetails[] { };
         }
 
         private IEnumerable<TestDetails> RunTestsAndCleanup() {
@@ -97,13 +103,12 @@ namespace msUnit {
                 message = Name + " has no no-arg ctors.";
                 return false;
             }
-            var invalid =new IAuxiliaryMethod[] {
+            var invalid = new IAuxiliaryMethod[] {
                 _classCleanup,
                 _classInitialize,
                 _testCleanup,
                 _testInitialize
             }.FirstOrDefault(m => !m.Valid);
-
             if (invalid != null) {
                 message = invalid.Error;
                 return false;

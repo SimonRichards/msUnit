@@ -10,13 +10,15 @@ namespace msUnit {
         private readonly IList<TestClass> _testClasses;
         private readonly IList<TestClass> _initializeClasses;
         private readonly IList<TestClass> _cleanupClasses;
+        private readonly IList<IFilter> _filters; 
 
-        public TestAssembly(string assemblyName) {
+        public TestAssembly(string assemblyName, IList<IFilter> filters) {
+            _filters = filters;
             _testAssembly = Assembly.UnsafeLoadFrom(assemblyName);
             _testClasses = (
                 from type in _testAssembly.GetTypes()
                 where type.GetCustomAttributes(typeof(TestClassAttribute), true).Any()
-                select new TestClass(type)).ToList();
+                select new TestClass(type, _filters)).ToList();
 
             _initializeClasses = _testClasses.Where(testClass => testClass.HasAssemblyInitialize).ToList();
             _cleanupClasses = _testClasses.Where(testClass => testClass.HasAssemblyCleanup).ToList();
