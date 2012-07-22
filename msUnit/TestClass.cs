@@ -41,7 +41,7 @@ namespace msUnit {
             _stdErrBuffer = new StringBuilder();
         }
 
-        internal IEnumerable<TestDetails> Test() {
+        public IEnumerable<TestDetails> Test() {
             string message;
             return IsClassValid(out message) ? RunTestsAndCleanup() : FailWholeClass(message);
         }
@@ -97,18 +97,22 @@ namespace msUnit {
                 message = Name + " has no no-arg ctors.";
                 return false;
             }
+            var invalid =new IAuxiliaryMethod[] {
+                _classCleanup,
+                _classInitialize,
+                _testCleanup,
+                _testInitialize
+            }.FirstOrDefault(m => !m.Valid);
 
-            foreach (var auxMethod in new IAuxiliaryMethod[] { _classCleanup, _classInitialize, _testCleanup, _testInitialize }) {
-                if (!auxMethod.Valid) {
-                    message = auxMethod.Error;
-                    return false;
-                }
+            if (invalid != null) {
+                message = invalid.Error;
+                return false;
             }
             message = string.Empty;
             return true;
         }
 
-        public IEnumerable<TestDetails> FailWholeClass(string message) {
+        private IEnumerable<TestDetails> FailWholeClass(string message) {
             return _testMethods.Select(method => new TestDetails {
                 Passed = false,
                 Thrown = new Exception(message),
@@ -125,12 +129,12 @@ namespace msUnit {
             get { return _assemblyInitialize.Exists; }
         }
 
-        internal bool AssemblyInitialize(out Exception thrown) {
+        public bool AssemblyInitialize(out Exception thrown) {
             Debug.Assert(HasAssemblyInitialize);
             return _assemblyInitialize.Invoke(null, out thrown);
         }
 
-        internal bool AssemblyCleanup(out Exception thrown) {
+        public bool AssemblyCleanup(out Exception thrown) {
             Debug.Assert(HasAssemblyCleanup);
             return _assemblyCleanup.Invoke(null, out thrown);
         }

@@ -2,7 +2,7 @@
 using System.Text;
 
 namespace msUnit {
-    internal enum Result { Pass, Fail }
+    public enum Result { Pass, Fail }
 
     struct TestDetails {
         public bool Passed;

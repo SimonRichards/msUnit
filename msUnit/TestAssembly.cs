@@ -22,7 +22,7 @@ namespace msUnit {
             _cleanupClasses = _testClasses.Where(testClass => testClass.HasAssemblyCleanup).ToList();
         }
 
-        internal void Test() {
+        public void Test() {
             CheckInvariants();
             AssemblyInitialize();
             RunTests();
@@ -61,10 +61,10 @@ namespace msUnit {
             }
         }
 
-        internal event AssemblyError AssemblyErrorHandler = delegate { };
-        internal event TestComplete TestCompleteHandler = delegate { };
+        public event AssemblyError AssemblyErrorHandler = delegate { };
+        public event TestComplete TestCompleteHandler = delegate { };
 
-        internal delegate void AssemblyError(Exception details);
-        internal delegate void TestComplete(TestDetails details);
+        public delegate void AssemblyError(Exception details);
+        public delegate void TestComplete(TestDetails details);
     }
 }

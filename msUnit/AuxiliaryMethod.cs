@@ -33,6 +33,7 @@ namespace msUnit {
                     }
                     break;
                 default:
+                    Error = string.Format("Two many {0} methods in {1}", typeof(T).Name, candidates.First().DeclaringType);
                     Valid = false;
                     Exists = false;
                     break;
