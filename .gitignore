@@ -1,3 +1,4 @@
+*.suo
 *.pdb
 *_ReSharper*
 *.exe
