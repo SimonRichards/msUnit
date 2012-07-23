@@ -14,11 +14,11 @@ namespace Microsoft.VisualStudio.TestTools.UnitTesting
     /// </summary>
     /// 
     [Serializable]
-    public class InconclusiveException : System.Exception
+    public class AssertInconclusiveException : System.Exception
     {
         /// <param name="message">The error message that explains 
         /// the reason for the exception</param>
-        public InconclusiveException(string message)
+        public AssertInconclusiveException(string message)
             : base(message)
         { }
 
@@ -26,7 +26,7 @@ namespace Microsoft.VisualStudio.TestTools.UnitTesting
         /// the reason for the exception</param>
         /// <param name="inner">The exception that caused the 
         /// current exception</param>
-        public InconclusiveException(string message, Exception inner)
+        public AssertInconclusiveException(string message, Exception inner)
             :
             base(message, inner)
         { }
@@ -34,7 +34,7 @@ namespace Microsoft.VisualStudio.TestTools.UnitTesting
         /// <summary>
         /// Serialization Constructor
         /// </summary>
-        protected InconclusiveException(SerializationInfo info,
+        protected AssertInconclusiveException(SerializationInfo info,
             StreamingContext context)
             : base(info, context)
         { }

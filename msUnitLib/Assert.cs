@@ -165,7 +165,7 @@ namespace Microsoft.VisualStudio.TestTools.UnitTesting
             else if (args != null && args.Length > 0)
                 message = string.Format(message, args);
 
-            throw new AssertionException(message);
+            throw new AssertFailedException(message);
         }
 
         /// <summary>
@@ -240,7 +240,7 @@ namespace Microsoft.VisualStudio.TestTools.UnitTesting
             else if (args != null && args.Length > 0)
                 message = string.Format(message, args);
 
-            throw new InconclusiveException(message);
+            throw new AssertInconclusiveException(message);
         }
 
         /// <summary>
@@ -1577,6 +1577,37 @@ namespace Microsoft.VisualStudio.TestTools.UnitTesting
             Assert.That(actual, Is.InstanceOf(expected), null, null);
         }
 
+        /// <summary>
+        /// Asserts that an object is an instance of a given type.
+        /// </summary>
+        /// <param name="expected">The expected Type</param>
+        /// <param name="actual">The object being examined</param>
+        /// <param name="message">The message to display in case of failure</param>
+        /// <param name="args">Array of objects to be used in formatting the message</param>
+        public static void IsInstanceOfType(object actual, Type expected, string message, params object[] args)
+        {
+            Assert.That(actual, Is.InstanceOf(expected), message, args);
+        }
+        /// <summary>
+        /// Asserts that an object is an instance of a given type.
+        /// </summary>
+        /// <param name="expected">The expected Type</param>
+        /// <param name="actual">The object being examined</param>
+        /// <param name="message">The message to display in case of failure</param>
+        public static void IsInstanceOfType(object actual, Type expected, string message)
+        {
+            Assert.That(actual, Is.InstanceOf(expected), message, null);
+        }
+        /// <summary>
+        /// Asserts that an object is an instance of a given type.
+        /// </summary>
+        /// <param name="expected">The expected Type</param>
+        /// <param name="actual">The object being examined</param>
+        public static void IsInstanceOfType(object actual, Type expected)
+        {
+            Assert.That(actual, Is.InstanceOf(expected), null, null);
+        }
+
         #endregion
 
         #region IsInstanceOf<T>
@@ -2041,6 +2072,20 @@ namespace Microsoft.VisualStudio.TestTools.UnitTesting
         {
             Assert.That(actual, Is.EqualTo(expected), null, null);
         }
+
+        #endregion
+
+        #region AreEqual
+
+		public static void AreEqual(string expected, string actual, bool ignoreCase) 
+		{
+			Assert.That (actual, ignoreCase ? Is.EqualTo(expected).IgnoreCase : Is.EqualTo(expected), null, null);
+		}
+
+		public static void AreEqual(string expected, string actual, bool ignoreCase, string message) 
+		{
+			Assert.That (actual, ignoreCase ? Is.EqualTo(expected).IgnoreCase : Is.EqualTo(expected), message, null);
+		}
 
         #endregion
 

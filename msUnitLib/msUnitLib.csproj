@@ -128,7 +128,6 @@
     <Compile Include="DirectoryAssert.cs" />
     <Compile Include="Exceptions\AssertionException.cs" />
     <Compile Include="Exceptions\IgnoreException.cs" />
-    <Compile Include="Exceptions\InconclusiveException.cs" />
     <Compile Include="Exceptions\SuccessException.cs" />
     <Compile Include="FileAssert.cs" />
     <Compile Include="GlobalSettings.cs" />
@@ -153,6 +152,8 @@
     <Compile Include="Text.cs" />
     <Compile Include="TextMessageWriter.cs" />
     <Compile Include="Throws.cs" />
+    <Compile Include="Exceptions\AssertInconclusiveException.cs" />
+    <Compile Include="Exceptions\AssertFailedException.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

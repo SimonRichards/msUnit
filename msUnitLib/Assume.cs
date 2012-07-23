@@ -1,4 +1,4 @@
-﻿// ****************************************************************
+// ****************************************************************
 // Copyright 2009, Charlie Poole
 // This is free software licensed under the NUnit license. You may
 // obtain a copy of the license at http://nunit.org
@@ -89,7 +89,7 @@ namespace Microsoft.VisualStudio.TestTools.UnitTesting
             {
                 MessageWriter writer = new TextMessageWriter(message, args);
                 constraint.WriteMessageTo(writer);
-                throw new InconclusiveException(writer.ToString());
+                throw new AssertInconclusiveException(writer.ToString());
             }
         }
         #endregion
@@ -134,7 +134,7 @@ namespace Microsoft.VisualStudio.TestTools.UnitTesting
             {
                 MessageWriter writer = new TextMessageWriter(message, args);
                 constraint.WriteMessageTo(writer);
-                throw new InconclusiveException(writer.ToString());
+                throw new AssertInconclusiveException(writer.ToString());
             }
         }
         #endregion
@@ -223,7 +223,7 @@ namespace Microsoft.VisualStudio.TestTools.UnitTesting
             {
                 MessageWriter writer = new TextMessageWriter(message, args);
                 constraint.WriteMessageTo(writer);
-                throw new InconclusiveException(writer.ToString());
+                throw new AssertInconclusiveException(writer.ToString());
             }
         }
 #endif
