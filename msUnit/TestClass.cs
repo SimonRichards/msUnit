@@ -8,140 +8,148 @@ using System.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace msUnit {
-    class TestClass {
-        private readonly Type _type;
-        private readonly Func<object> _ctor;
-        private readonly IList<MethodInfo> _testMethods;
-        private readonly AuxiliaryMethod<AssemblyInitializeAttribute> _assemblyInitialize;
-        private readonly AuxiliaryMethod<AssemblyCleanupAttribute> _assemblyCleanup;
-        private readonly AuxiliaryMethod<ClassInitializeAttribute> _classInitialize;
-        private readonly AuxiliaryMethod<ClassCleanupAttribute> _classCleanup;
-        private readonly AuxiliaryMethod<TestInitializeAttribute> _testInitialize;
-        private readonly AuxiliaryMethod<TestCleanupAttribute> _testCleanup;
-        private readonly StringBuilder _stdOutBuffer;
-        private readonly StringBuilder _stdErrBuffer;
-        public string Name { get; private set; }
-        private readonly object[] _noArgs = new object[] { };
+	class TestClass {
+		private readonly Type _type;
+		private readonly Func<object> _ctor;
+		private readonly IList<MethodInfo> _testMethods;
+		private readonly AuxiliaryMethod<AssemblyInitializeAttribute> _assemblyInitialize;
+		private readonly AuxiliaryMethod<AssemblyCleanupAttribute> _assemblyCleanup;
+		private readonly AuxiliaryMethod<ClassInitializeAttribute> _classInitialize;
+		private readonly AuxiliaryMethod<ClassCleanupAttribute> _classCleanup;
+		private readonly AuxiliaryMethod<TestInitializeAttribute> _testInitialize;
+		private readonly AuxiliaryMethod<TestCleanupAttribute> _testCleanup;
+		private readonly StringBuilder _stdOutBuffer;
+		private readonly StringBuilder _stdErrBuffer;
 
-        public TestClass(Type type, IEnumerable<IFilter> filters) {
-            _type = type;
-            var validCtor = type.GetConstructor(new Type[] { });
-            _ctor = validCtor == null ? (Func<object>)null : () => validCtor.Invoke(_noArgs);
-            Name = type.Name;
-            IList<MethodInfo> methods = _type.GetMethods();
-            _testMethods = (
+		public string Name { get; private set; }
+
+		private readonly object[] _noArgs = new object[] { };
+
+		public TestClass(Type type, IEnumerable<IFilter> filters) {
+			_type = type;
+			var validCtor = type.GetConstructor(new Type[] { });
+			_ctor = validCtor == null ? (Func<object>)null : () => validCtor.Invoke(_noArgs);
+			Name = type.Name;
+			List<MethodInfo> methods = new List<MethodInfo>();
+			for (var testType = type; testType != typeof(object); testType = testType.BaseType) {
+				foreach (var method in testType.GetMethods(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static)) {
+					methods.Insert(0, method);
+				}
+			}
+			_testMethods = (
                 from method in methods
                 where method.GetCustomAttributes(typeof(TestMethodAttribute), true).Any()
                 where filters.All(filter => filter.Test(method))
                 select method).ToList();
-            _assemblyInitialize = new AuxiliaryMethod<AssemblyInitializeAttribute>(methods, @static: true);
-            _assemblyCleanup = new AuxiliaryMethod<AssemblyCleanupAttribute>(methods, @static: true);
-            _classInitialize = new AuxiliaryMethod<ClassInitializeAttribute>(methods, @static: true);
-            _classCleanup = new AuxiliaryMethod<ClassCleanupAttribute>(methods, @static: true);
-            _testCleanup = new AuxiliaryMethod<TestCleanupAttribute>(methods);
-            _testInitialize = new AuxiliaryMethod<TestInitializeAttribute>(methods);
-            _stdOutBuffer = new StringBuilder();
-            _stdErrBuffer = new StringBuilder();
-        }
+			_assemblyInitialize = new AuxiliaryMethod<AssemblyInitializeAttribute>(methods,  @static: true);
+			_assemblyCleanup = new AuxiliaryMethod<AssemblyCleanupAttribute>(methods,  @static: true);
+			_classInitialize = new AuxiliaryMethod<ClassInitializeAttribute>(methods,  @static: true);
+			_classCleanup = new AuxiliaryMethod<ClassCleanupAttribute>(methods,  @static: true);
+			_testCleanup = new AuxiliaryMethod<TestCleanupAttribute>(methods);
+			_testInitialize = new AuxiliaryMethod<TestInitializeAttribute>(methods);
+			_stdOutBuffer = new StringBuilder();
+			_stdErrBuffer = new StringBuilder();
+		}
 
-        public IEnumerable<TestDetails> Test() {
-            if (_testMethods.Any()) {
-                string message;
-                return IsClassValid(out message) ? RunTestsAndCleanup() : FailWholeClass(message);
-            }
-            return new TestDetails[] { };
-        }
+		public IEnumerable<TestDetails> Test() {
+			if (_testMethods.Any()) {
+				string message;
+				return IsClassValid(out message) ? RunTestsAndCleanup() : FailWholeClass(message);
+			}
+			return new TestDetails[] { };
+		}
 
-        private IEnumerable<TestDetails> RunTestsAndCleanup() {
-            var testResults = RunTests();
-            Exception thrown;
-            if (_classCleanup.Invoke(null, out thrown)) {
-                return testResults;
-            }
-            var cleanupDetails = new TestDetails {
-                Name = _classCleanup.Name,
+		private IEnumerable<TestDetails> RunTestsAndCleanup() {
+			var testResults = RunTests();
+			Exception thrown;
+			if (_classCleanup.Invoke(null, out thrown)) {
+				return testResults;
+			}
+			var cleanupDetails = new TestDetails {
+                Name = _classCleanup + "." + _classCleanup.Name,
                 Passed = false,
                 Thrown = thrown,
                 Time = TimeSpan.Zero
             };
-            return testResults.Concat(new[] { cleanupDetails });
-        }
+			return testResults.Concat(new[] { cleanupDetails });
+		}
 
-        private IEnumerable<TestDetails> RunTests() {
-            var timer = new Stopwatch();
-            var stdOut = Console.Out;
-            var stdError = Console.Error;
-            foreach (var testMethod in _testMethods) {
-                var details = new TestDetails { Name = testMethod.Name, Passed = true };
-                timer.Restart();
-                Console.SetOut(new StringWriter(_stdOutBuffer));
-                Console.SetError(new StringWriter(_stdErrBuffer));
-                try {
-                    object instance = _ctor();
-                    details.Passed = _testInitialize.Invoke(instance, out details.Thrown);
-                    if (details.Passed) {
-                        testMethod.Invoke(instance, _noArgs);
-                        details.Passed = _testCleanup.Invoke(instance, out details.Thrown);
-                    }
-                } catch (TargetInvocationException e) {
-                    details.Passed = false;
-                    details.Thrown = e.InnerException;
-                }
-                details.Time = timer.Elapsed;
-                details.StdOut = _stdOutBuffer.ToString();
-                details.StdErr = _stdErrBuffer.ToString();
-                Console.SetOut(stdOut);
-                Console.SetError(stdError);
-                yield return details;
-                _stdOutBuffer.Clear();
-                _stdErrBuffer.Clear();
-            }
-        }
+		private IEnumerable<TestDetails> RunTests() {
+			var timer = new Stopwatch();
+			var stdOut = Console.Out;
+			var stdError = Console.Error;
+			foreach (var testMethod in _testMethods) {
+				var details = new TestDetails { Name = testMethod.DeclaringType + "." + testMethod.Name, Passed = true };
+				timer.Restart();
+				Console.SetOut(new StringWriter(_stdOutBuffer));
+				Console.SetError(new StringWriter(_stdErrBuffer));
+				try {
+					object instance = _ctor();
+					details.Passed = _testInitialize.Invoke(instance, out details.Thrown);
+					if (details.Passed) {
+						testMethod.Invoke(instance, _noArgs);
+						details.Passed = _testCleanup.Invoke(instance, out details.Thrown);
+					}
+				} catch (Exception e) {
+					details.Passed = false;
+					details.Thrown = e.InnerException;
+				}
+				details.Time = timer.Elapsed;
+				details.StdOut = _stdOutBuffer.ToString();
+				details.StdErr = _stdErrBuffer.ToString();
+				Console.SetOut(stdOut);
+				Console.SetError(stdError);
+				yield return details;
+				_stdOutBuffer.Clear();
+				_stdErrBuffer.Clear();
+			}
+		}
 
-        private bool IsClassValid(out string message) {
-            if (_ctor == null) {
-                message = Name + " has no no-arg ctors.";
-                return false;
-            }
-            var invalid = new IAuxiliaryMethod[] {
+		private bool IsClassValid(out string message) {
+			if (_ctor == null) {
+				message = Name + " has no no-arg ctors.";
+				return false;
+			}
+			var invalid = new IAuxiliaryMethod[] {
                 _classCleanup,
                 _classInitialize,
                 _testCleanup,
                 _testInitialize
             }.FirstOrDefault(m => !m.Valid);
-            if (invalid != null) {
-                message = invalid.Error;
-                return false;
-            }
-            message = string.Empty;
-            return true;
-        }
+			if (invalid != null) {
+				message = invalid.Error;
+				return false;
+			}
+			message = string.Empty;
+			return true;
+		}
 
-        private IEnumerable<TestDetails> FailWholeClass(string message) {
-            return _testMethods.Select(method => new TestDetails {
+		private IEnumerable<TestDetails> FailWholeClass(string message) {
+			return _testMethods.Select(method => new TestDetails {
                 Passed = false,
                 Thrown = new TestException(message),
                 Time = TimeSpan.Zero,
-                Name = method.Name
-            });
-        }
+				Name = method.DeclaringType + "." + method.Name
+            }
+			);
+		}
 
-        public bool HasAssemblyCleanup {
-            get { return _assemblyCleanup.Exists; }
-        }
+		public bool HasAssemblyCleanup {
+			get { return _assemblyCleanup.Exists; }
+		}
 
-        public bool HasAssemblyInitialize {
-            get { return _assemblyInitialize.Exists; }
-        }
+		public bool HasAssemblyInitialize {
+			get { return _assemblyInitialize.Exists; }
+		}
 
-        public bool AssemblyInitialize(out Exception thrown) {
-            Debug.Assert(HasAssemblyInitialize);
-            return _assemblyInitialize.Invoke(null, out thrown);
-        }
+		public bool AssemblyInitialize(out Exception thrown) {
+			Debug.Assert(HasAssemblyInitialize);
+			return _assemblyInitialize.Invoke(null, out thrown);
+		}
 
-        public bool AssemblyCleanup(out Exception thrown) {
-            Debug.Assert(HasAssemblyCleanup);
-            return _assemblyCleanup.Invoke(null, out thrown);
-        }
-    }
+		public bool AssemblyCleanup(out Exception thrown) {
+			Debug.Assert(HasAssemblyCleanup);
+			return _assemblyCleanup.Invoke(null, out thrown);
+		}
+	}
 }

@@ -18,6 +18,7 @@ namespace msUnit {
             _testClasses = (
                 from type in _testAssembly.GetTypes()
                 where type.GetCustomAttributes(typeof(TestClassAttribute), true).Any()
+				where !type.IsAbstract
                 select new TestClass(type, _filters)).ToList();
 
             _initializeClasses = _testClasses.Where(testClass => testClass.HasAssemblyInitialize).ToList();
