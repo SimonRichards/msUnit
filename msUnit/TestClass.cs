@@ -10,6 +10,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace msUnit {
 	class TestClass {
 		private readonly Type _type;
+		private readonly Action<string> _testStarted;
 		private readonly Func<object> _ctor;
 		private readonly IList<MethodInfo> _testMethods;
 		private readonly AuxiliaryMethod<AssemblyInitializeAttribute> _assemblyInitialize;
@@ -25,8 +26,9 @@ namespace msUnit {
 
 		private readonly object[] _noArgs = new object[] { };
 
-		public TestClass(Type type, IEnumerable<IFilter> filters) {
+		public TestClass(Type type, IEnumerable<IFilter> filters, Action<string> testStartedHandler) {
 			_type = type;
+			_testStarted = testStartedHandler;
 			var validCtor = type.GetConstructor(new Type[] { });
 			_ctor = validCtor == null ? (Func<object>)null : () => validCtor.Invoke(_noArgs);
 			Name = type.Name;
@@ -80,9 +82,10 @@ namespace msUnit {
 			var stdError = Console.Error;
 			foreach (var testMethod in _testMethods) {
 				var details = new TestDetails { Name = testMethod.DeclaringType + "." + testMethod.Name, Passed = true };
-				timer.Restart();
+				_testStarted(details.Name);
 				Console.SetOut(new StringWriter(_stdOutBuffer));
 				Console.SetError(new StringWriter(_stdErrBuffer));
+				timer.Restart();
 				try {
 					object instance = _ctor();
 					details.Passed = _testInitialize.Invoke(instance, out details.Thrown);

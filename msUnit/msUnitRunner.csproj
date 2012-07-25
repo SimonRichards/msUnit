@@ -22,8 +22,8 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <UseVSHostingProcess>false</UseVSHostingProcess>
-    <Commandlineparameters>--from /home/simon/stable/Tests/bin/Debug/geobase.net.unittest.dll</Commandlineparameters>
-    <ConsolePause>false</ConsolePause>
+    <Commandlineparameters>--from /home/simon/stable/Tests/bin/Debug/SmokeTests.dll</Commandlineparameters>
+    <Externalconsole>true</Externalconsole>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <PlatformTarget>x86</PlatformTarget>

@@ -15,8 +15,10 @@ namespace msUnit {
 			foreach (var assembly in options.Assemblies.Select(file => new TestAssembly(file, options.Filters))) {
 				assembly.AssemblyErrorHandler += output.AssemblyError;
 				assembly.TestCompleteHandler += output.TestCompleted;
+				assembly.TestStartedHandler += output.TestStarted;
 				assembly.Test();
 			}
+			output.TestRunCompleted();
 		}
 	}
 }
