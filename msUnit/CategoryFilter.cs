@@ -15,7 +15,7 @@ namespace msUnit {
 			_inclusive = inclusive;
 		}
 
-		public bool Test(MethodInfo method) {
+		public bool Test(Type type, MethodInfo method) {
 			var categoryAttribute = method.GetCustomAttributes(typeof(TestCategoryAttribute), false).FirstOrDefault();
 			if (categoryAttribute == null) {
 				return !_inclusive;

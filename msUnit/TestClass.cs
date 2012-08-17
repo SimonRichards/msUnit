@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Text;
 using System.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Collections;
 
 namespace msUnit {
 	class TestClass {
@@ -21,6 +22,7 @@ namespace msUnit {
 		private readonly AuxiliaryMethod<TestCleanupAttribute> _testCleanup;
 		private readonly StringBuilder _stdOutBuffer;
 		private readonly StringBuilder _stdErrBuffer;
+		private readonly IDictionary _context = new Dictionary<int, int>();
 
 		public string Name { get; private set; }
 
@@ -41,7 +43,7 @@ namespace msUnit {
 			_testMethods = (
                 from method in methods
                 where method.GetCustomAttributes(typeof(TestMethodAttribute), true).Any()
-                where filters.All(filter => filter.Test(method))
+                where filters.All(filter => filter.Test(type, method))
                 select method).ToList();
 			_assemblyInitialize = new AuxiliaryMethod<AssemblyInitializeAttribute>(methods,  @static: true);
 			_assemblyCleanup = new AuxiliaryMethod<AssemblyCleanupAttribute>(methods,  @static: true);
@@ -62,8 +64,12 @@ namespace msUnit {
 		}
 
 		private IEnumerable<TestDetails> RunTestsAndCleanup() {
-			var testResults = RunTests();
 			Exception thrown;
+			if (!_classInitialize.Invoke(null, out thrown, new [] { new TestContext(_context) })) {
+				return FailWholeClass(_classInitialize.Error);
+			}
+			var testResults = RunTests();
+			
 			if (_classCleanup.Invoke(null, out thrown)) {
 				return testResults;
 			}
@@ -81,7 +87,7 @@ namespace msUnit {
 			var stdOut = Console.Out;
 			var stdError = Console.Error;
 			foreach (var testMethod in _testMethods) {
-				var details = new TestDetails { Name = testMethod.DeclaringType + "." + testMethod.Name, Passed = true };
+				var details = new TestDetails { Name = _type.FullName + "." + testMethod.Name, Passed = true };
 				_testStarted(details.Name);
 				Console.SetOut(new StringWriter(_stdOutBuffer));
 				Console.SetError(new StringWriter(_stdErrBuffer));
@@ -132,7 +138,7 @@ namespace msUnit {
                 Passed = false,
                 Thrown = new TestException(message),
                 Time = TimeSpan.Zero,
-				Name = method.DeclaringType + "." + method.Name
+				Name = _type.FullName + "." + method.Name
             }
 			);
 		}
@@ -147,7 +153,7 @@ namespace msUnit {
 
 		public bool AssemblyInitialize(out Exception thrown) {
 			Debug.Assert(HasAssemblyInitialize);
-			return _assemblyInitialize.Invoke(null, out thrown);
+			return _assemblyInitialize.Invoke(null, out thrown, new TestContext(_context));
 		}
 
 		public bool AssemblyCleanup(out Exception thrown) {

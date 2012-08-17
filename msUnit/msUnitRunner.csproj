@@ -14,27 +14,27 @@
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <PlatformTarget>x86</PlatformTarget>
-    <DebugSymbols>true</DebugSymbols>
+    <DebugSymbols>True</DebugSymbols>
     <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
+    <Optimize>False</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <UseVSHostingProcess>false</UseVSHostingProcess>
-    <Commandlineparameters>--from /home/simon/stable/Tests/bin/Debug/SmokeTests.dll</Commandlineparameters>
-    <Externalconsole>true</Externalconsole>
+    <Commandlineparameters>--from /home/simon/msUnit/tests/bin/Debug/tests.dll</Commandlineparameters>
+    <Externalconsole>True</Externalconsole>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <PlatformTarget>x86</PlatformTarget>
     <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
+    <Optimize>True</Optimize>
     <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Commandlineparameters>--from /home/simon/stable/Tests/bin/Debug/geobase.net.unittest.dll</Commandlineparameters>
-    <ConsolePause>false</ConsolePause>
+    <ConsolePause>False</ConsolePause>
   </PropertyGroup>
   <PropertyGroup>
     <StartupObject>msUnit.Program</StartupObject>
@@ -47,9 +47,6 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="msUnitLib">
-      <HintPath>..\msUnitLib\bin\Debug\msUnitLib.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AuxiliaryMethod.cs" />
@@ -64,6 +61,7 @@
     <Compile Include="TestAssembly.cs" />
     <Compile Include="TestClass.cs" />
     <Compile Include="TestException.cs" />
+    <Compile Include="SkipUntilFilter.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
@@ -76,4 +74,10 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+  <ItemGroup>
+    <ProjectReference Include="..\msUnitLib\msUnitLib.csproj">
+      <Project>{E9264450-DE4F-436B-9B5D-C3113B6C4D9F}</Project>
+      <Name>msUnitLib</Name>
+    </ProjectReference>
+  </ItemGroup>
 </Project>

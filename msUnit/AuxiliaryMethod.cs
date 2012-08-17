@@ -54,7 +54,7 @@ namespace msUnit {
 
 		}
 
-		public bool Invoke(object instance, out Exception thrown) {
+		public bool Invoke(object instance, out Exception thrown, params object[] args) {
 			thrown = null;
 			if (!Valid) {
 				thrown = new TestException(Error);
@@ -62,7 +62,12 @@ namespace msUnit {
 			}
 			try {
 				foreach (var method in _methods) {
-					method.Invoke(instance, new object[] { });
+					if (method.GetParameters().Length == args.Length) {
+						method.Invoke(instance, args.ToArray());
+					} else {
+						thrown = new TestException(Name + " had wrong number of arguments.");
+						return false;
+					}
 				}
 			} catch (TargetInvocationException e) {
 				thrown = e.InnerException;

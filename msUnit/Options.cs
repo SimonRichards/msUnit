@@ -4,17 +4,23 @@ using System.Linq;
 
 namespace msUnit {
 	class Options {
-		public IList<string> Assemblies { get; private set; }
 
-		public IList<IFilter> Filters { get; private set; }
-
-		public bool Error { get; private set; }
+		public readonly IList<string> Assemblies;
+		public readonly IList<IFilter> Filters;
+		public readonly bool Error;
+		public readonly bool RunInSeparateProcess;
+		public readonly bool SkipUntilFirst;
+		public string FirstTest;
+		public string Parent;
 
 		public Options(IList<string> args) {
 			Assemblies = new List<string>();
 			Filters = new List<IFilter>();
 			Error = !args.Any();
 			Action<string> argHandler = null;
+			RunInSeparateProcess = true;
+			SkipUntilFirst = false;
+			FirstTest = string.Empty;
 			foreach (var arg in args) {
 				switch (arg) {
 				case "--from":
@@ -29,6 +35,14 @@ namespace msUnit {
 				case "--nottagged":
 					argHandler = s => Filters.Add(new CategoryFilter(s, false));
 					break;
+				case "--parent":
+					RunInSeparateProcess = false;
+					argHandler = s => Parent = s;
+					break;
+				case "--startfrom":
+					SkipUntilFirst = true;
+					argHandler = s => Filters.Add(new SkipUntilFilter(s));
+					break;
 				default:
 					if (argHandler == null) {
 						Error = true;
@@ -38,6 +52,14 @@ namespace msUnit {
 					break;
 				}
 			}
+		}
+
+		public static string CreateParentOption(string pipeName) {
+			return " --parent " + pipeName;
+		}
+
+		public static string CreateLastTestOption(string lastRunTest) {
+			return " --startfrom " + lastRunTest;
 		}
 
 		public string Usage {

@@ -12,12 +12,16 @@ namespace msUnit {
 		private static string _testingString = "Testing\t{0}...";
 
 		public ConsoleWriter() {
-			try {
-				Console.SetCursorPosition(Console.CursorLeft, Console.CursorTop);
-				_canMoveCursor = true;
-			} catch (Exception e) {
-				Console.WriteLine("Console does not support moving the cursor: " + e);
+			if (Console.BufferWidth == 0) {
 				_canMoveCursor = false;
+			} else {
+				try {
+					Console.WriteLine();
+					Console.CursorTop--;
+					_canMoveCursor = true;
+				} catch (Exception) {
+					_canMoveCursor = false;
+				}
 			}
 			_start = DateTime.Now;
 		}

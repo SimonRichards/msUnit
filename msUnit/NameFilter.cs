@@ -12,7 +12,7 @@ namespace msUnit {
 			_name = name;
 		}
 
-		public bool Test(MethodInfo method) {
+		public bool Test(Type type, MethodInfo method) {
 			return method.Name.Contains(_name);
 		}
 	}
