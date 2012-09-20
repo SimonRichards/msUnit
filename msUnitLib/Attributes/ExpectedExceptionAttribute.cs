@@ -30,11 +30,6 @@ namespace Microsoft.VisualStudio.TestTools.UnitTesting
 	public class ExpectedExceptionAttribute : Attribute
 	{
 		private Type expectedException;
-		private string expectedExceptionName;
-		private string expectedMessage;
-		private MessageMatch matchType;
-		private string userMessage;
-		private string handler;
 
 		/// <summary>
 		/// Constructor for a non-specific exception
@@ -47,10 +42,19 @@ namespace Microsoft.VisualStudio.TestTools.UnitTesting
 		/// Constructor for a given type of exception
 		/// </summary>
 		/// <param name="exceptionType">The type of the expected exception</param>
-		public ExpectedExceptionAttribute(Type exceptionType)
+		public ExpectedExceptionAttribute(Type exceptionType) {
+			ExpectedException = exceptionType;
+		}
+
+		/// <summary>
+		/// Constructor for a given type of exception
+		/// </summary>
+		/// <param name="exceptionType">The type of the expected exception</param>
+		/// <param name="message">A message to print if the exception is not thrown</param>
+		public ExpectedExceptionAttribute(Type exceptionType, string message)
 		{
-			this.expectedException = exceptionType;
-			this.expectedExceptionName = exceptionType.FullName;
+			ExpectedException = exceptionType;
+			UserMessage = message;
 		}
 
 		/// <summary>
@@ -59,7 +63,7 @@ namespace Microsoft.VisualStudio.TestTools.UnitTesting
 		/// <param name="exceptionName">The full name of the expected exception</param>
 		public ExpectedExceptionAttribute(string exceptionName)
 		{
-			this.expectedExceptionName = exceptionName;
+			ExpectedExceptionName = exceptionName;
 		}
 
 		/// <summary>
@@ -69,55 +73,35 @@ namespace Microsoft.VisualStudio.TestTools.UnitTesting
 		{
 			get{ return expectedException; }
 			set
-            { 
-                expectedException = value;
-                expectedExceptionName = expectedException.FullName;
+            {
+				expectedException = value;
+                ExpectedExceptionName = ExpectedException.FullName;
             }
 		}
 
 		/// <summary>
 		/// Gets or sets the full Type name of the expected exception
 		/// </summary>
-		public string ExpectedExceptionName
-		{
-			get{ return expectedExceptionName; }
-			set{ expectedExceptionName = value; }
-		}
+		public string ExpectedExceptionName { get; set; }
 
 		/// <summary>
 		/// Gets or sets the expected message text
 		/// </summary>
-		public string ExpectedMessage 
-		{
-			get { return expectedMessage; }
-			set { expectedMessage = value; }
-		}
+		public string ExpectedMessage { get; set; }
 
 		/// <summary>
 		/// Gets or sets the user message displayed in case of failure
 		/// </summary>
-		public string UserMessage
-		{
-			get { return userMessage; }
-			set { userMessage = value; }
-		}
+		public string UserMessage { get; set; }
 
 		/// <summary>
 		///  Gets or sets the type of match to be performed on the expected message
 		/// </summary>
-		public MessageMatch MatchType
-		{
-			get { return matchType; }
-			set { matchType = value; }
-		}
+		public MessageMatch MatchType { get; set; }
 
 		/// <summary>
 		///  Gets the name of a method to be used as an exception handler
 		/// </summary>
-		public string Handler
-		{
-			get { return handler; }
-			set { handler = value; }
-		}
+		public string Handler { get; set; }
 	}
 }
