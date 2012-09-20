@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
-    <StartArguments>--from ../../../FakeTest/bin/Debug/FakeTest.dll --named "Test" --nottagged "Don't run"</StartArguments>
+    <StartArguments>--from ../../../../Devel/Tests/bin/Debug/SmokeTests.dll</StartArguments>
   </PropertyGroup>
 </Project>
