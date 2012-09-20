@@ -12,9 +12,13 @@ namespace msUnit {
 			var options = new Options(args);
 			if (options.Error) {
 				Console.Error.WriteLine(options.Usage);
-			} else if (options.RunInSeparateProcess) {
+			} 
+#if !DEBUG
+			else if (options.RunInSeparateProcess) {
 				Fork(args);
-			} else {
+			} 
+#endif
+			else {
 				RunAllTests(options);
 			}
 			return 0;
@@ -58,24 +62,39 @@ namespace msUnit {
 		}
 
 		static void RunAllTests(Options options) {
-			var output = new ConsoleWriter();
+
+			AppDomain.CurrentDomain.UnhandledException += (sender, args) => Environment.Exit(1);
+
+			var output = options.Output;
+			if (options.PreviousRunCrashed) {
+				output.TestCompleted(TestDetails.CreateFailure(options.CrashedTest));
+			}
+					
+#if !DEBUG
 			using (var pipe = new NamedPipeClientStream(options.Parent)) {
 				pipe.Connect();
 				var parentStream = new StreamWriter(pipe) { AutoFlush = true };
+#endif
 				foreach (var file in options.Assemblies) {
 					try {
 						var assembly = new TestAssembly(file, options.Filters);
+						output.TestSuiteStarted(file);
 						assembly.AssemblyErrorHandler += output.AssemblyError;
 						assembly.TestCompleteHandler += output.TestCompleted;
 						assembly.TestStartedHandler += output.TestStarted;
+#if !DEBUG
 						assembly.TestStartedHandler += test => parentStream.WriteLine(test);
+#endif
 						assembly.Test();
+						output.TestSuiteFinished();
 					} catch (Exception e) {
 						output.AssemblyError(e);
 					}
 				}
 				output.TestRunCompleted();
+#if !DEBUG
 			}
+#endif
 		}
 	}
 }

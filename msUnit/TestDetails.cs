@@ -7,12 +7,23 @@ namespace msUnit {
 		Fail
 	}
 
-	struct TestDetails {
+	public struct TestDetails {
 		public bool Passed;
 		public string Name;
 		public Exception Thrown;
 		public TimeSpan Time;
 		public string StdOut;
 		public string StdErr;
+
+		public static TestDetails CreateFailure(string name) {
+			return new TestDetails {
+				Name = name,
+				Passed = false,
+				Thrown = new Exception("An unknown error caused the test runner to exit"),
+				Time = TimeSpan.MinValue,
+				StdOut = string.Empty,
+				StdErr = string.Empty
+			};
+		}
 	}
 }

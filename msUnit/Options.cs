@@ -5,12 +5,18 @@ using System.Linq;
 namespace msUnit {
 	class Options {
 
+		private enum OutputKind {
+			Console,
+			Teamcity
+		}
+
 		public readonly IList<string> Assemblies;
 		public readonly IList<IFilter> Filters;
 		public readonly bool Error;
 		public readonly bool RunInSeparateProcess;
-		public readonly bool SkipUntilFirst;
-		public string FirstTest;
+		public readonly bool PreviousRunCrashed;
+		public readonly ITestOutput Output;
+		public string CrashedTest;
 		public string Parent;
 
 		public Options(IList<string> args) {
@@ -19,39 +25,48 @@ namespace msUnit {
 			Error = !args.Any();
 			Action<string> argHandler = null;
 			RunInSeparateProcess = true;
-			SkipUntilFirst = false;
-			FirstTest = string.Empty;
+			PreviousRunCrashed = false;
+			CrashedTest = string.Empty;
+			OutputKind output = OutputKind.Console;
 			foreach (var arg in args) {
 				switch (arg) {
-				case "--from":
-					argHandler = Assemblies.Add;
-					break;
-				case "--named":
-					argHandler = s => Filters.Add(new NameFilter(s));
-					break;
-				case "--tagged":
-					argHandler = s => Filters.Add(new CategoryFilter(s, true));
-					break;
-				case "--nottagged":
-					argHandler = s => Filters.Add(new CategoryFilter(s, false));
-					break;
-				case "--parent":
-					RunInSeparateProcess = false;
-					argHandler = s => Parent = s;
-					break;
-				case "--startfrom":
-					SkipUntilFirst = true;
-					argHandler = s => Filters.Add(new SkipUntilFilter(s));
-					break;
-				default:
-					if (argHandler == null) {
-						Error = true;
-						return;
-					}
-					argHandler(arg);
-					break;
+					case "--from":
+						argHandler = Assemblies.Add;
+						break;
+					case "--named":
+						argHandler = s => Filters.Add(new NameFilter(s));
+						break;
+					case "--tagged":
+						argHandler = s => Filters.Add(new CategoryFilter(s, true));
+						break;
+					case "--nottagged":
+						argHandler = s => Filters.Add(new CategoryFilter(s, false));
+						break;
+					case "--parent":
+						RunInSeparateProcess = false;
+						argHandler = s => Parent = s;
+						break;
+					case "--startfrom":
+						PreviousRunCrashed = true;
+						argHandler = s => {
+							Filters.Add(new SkipUntilFilter(s));
+							CrashedTest = s;
+						};
+						break;
+					case "--teamcity":
+						output = OutputKind.Teamcity;
+						argHandler = null;
+						break;
+					default:
+						if (argHandler == null) {
+							Error = true;
+							return;
+						}
+						argHandler(arg);
+						break;
 				}
 			}
+			Output = output == OutputKind.Console ? (ITestOutput)new ConsoleWriter() : new TeamcityOutput();
 		}
 
 		public static string CreateParentOption(string pipeName) {

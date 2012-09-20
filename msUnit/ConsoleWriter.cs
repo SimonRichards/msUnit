@@ -1,7 +1,7 @@
 ﻿using System;
 
 namespace msUnit {
-	class ConsoleWriter {
+	class ConsoleWriter : ITestOutput {
 
 		private readonly bool _canMoveCursor;
 		private readonly DateTime _start;
@@ -9,7 +9,7 @@ namespace msUnit {
 		private int _passedCount;
 		private static ConsoleColor _success = ConsoleColor.DarkGreen;
 		private static ConsoleColor _failure = ConsoleColor.DarkRed;
-		private static string _testingString = "Testing\t{0}...";
+		private const string _testingFormat = "Testing\t{0}...";
 
 		public ConsoleWriter() {
 			if (Console.BufferWidth == 0) {
@@ -33,7 +33,7 @@ namespace msUnit {
 		public void TestStarted(string name) {
 			if (_canMoveCursor) {
 				using (new TemporaryConsoleColor(ConsoleColor.Gray)) {
-					Console.WriteLine(_testingString, name);
+					Console.WriteLine(_testingFormat, name);
 				}
 			}
 		}
@@ -47,7 +47,7 @@ namespace msUnit {
 		public void TestCompleted(TestDetails details) {
 			if (_canMoveCursor) {
 				--Console.CursorTop;
-				Console.WriteLine(new string(' ', string.Format(_testingString, details.Name).Length));
+				Console.WriteLine(new string(' ', string.Format(_testingFormat, details.Name).Length));
 				--Console.CursorTop;
 			}
 			++_count;
@@ -83,6 +83,21 @@ namespace msUnit {
 			public void Dispose() {
 				Console.ForegroundColor = _originalColor;
 			}
+		}
+
+		public void TestSuiteStarted(string name) {
+			using (new TemporaryConsoleColor(ConsoleColor.Yellow)) {
+				Console.WriteLine("Testing assembly: {0}", name);
+			}
+		}
+
+		public void TestIgnored(string name, string reason) {
+			using (new TemporaryConsoleColor(ConsoleColor.Gray)) {
+				Console.WriteLine("Ignoring test: {0}, {1}", name, reason);
+			}
+		}
+
+		public void TestSuiteFinished() {
 		}
 	}
 }

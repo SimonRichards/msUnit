@@ -53,8 +53,10 @@
     <Compile Include="CategoryFilter.cs" />
     <Compile Include="ConsoleWriter.cs" />
     <Compile Include="IFilter.cs" />
+    <Compile Include="ITestOutput.cs" />
     <Compile Include="NameFilter.cs" />
     <Compile Include="Options.cs" />
+    <Compile Include="TeamcityOutput.cs" />
     <Compile Include="TestDetails.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
