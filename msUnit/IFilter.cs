@@ -2,7 +2,7 @@
 using System.Reflection;
 
 namespace msUnit {
-	interface IFilter {
+	public interface IFilter {
 		bool Test(Type type, MethodInfo method);
 	}
 }

@@ -8,93 +8,47 @@ using System.Reflection;
 
 namespace msUnit {
 	class Program {
-		static int Main(string[] args) {
+		static void Main(string[] args) {
 			var options = new Options(args);
-			if (options.Error) {
+			
+			if (options.HasError) {
 				Console.Error.WriteLine(options.Usage);
-			} 
-#if !DEBUG
-			else if (options.RunInSeparateProcess) {
-				Fork(args);
-			} 
-#endif
-			else {
-				RunAllTests(options);
+			} else if (options.IsChild) {
+				new TestRunner(options).Complete.WaitOne();
+			} else {
+				Process runner = CreateChild(args, options.PipeName);
+				new Thread(() => KeepAlive(runner)).Start();
+				new TestServer(options, runner).Start();
 			}
-			return 0;
+            /*
+#if SERVER
+			Process runner = CreateChild(args, options.PipeName);
+			new Thread(() => KeepAlive(runner)).Start();
+			new TestServer(options, runner).Start();
+#else			
+			new TestRunner(options).Complete.WaitOne();
+#endif
+             */
 		}
 
-		static void Fork(string[] args) {
-			string pipeName = Guid.NewGuid().ToString();
-			string executable = Assembly.GetEntryAssembly().Location;
-			string arguments = string.Join(" ", args) + Options.CreateParentOption(pipeName);
-			Process process;
-			bool firstRun = true;
-			string lastRunTest = string.Empty;
-			var pipe = new NamedPipeServerStream(pipeName);
-			var pipeReader = new Thread(() => {
-				pipe.WaitForConnection();
-				using (var stream = new StreamReader(pipe)) {
-					while (!stream.EndOfStream) {
-						lastRunTest = stream.ReadLine();
-					}
+		static Process CreateChild(string[] args, string pipeName) {	
+			return new Process {
+				StartInfo = new ProcessStartInfo {
+					FileName = Assembly.GetEntryAssembly().Location,
+					Arguments = string.Join(" ", args) + Options.CreateParentOption(pipeName),
+					UseShellExecute = false
 				}
-			});
-			pipeReader.Start();
-			while (true) {
-				process = new Process {
-					StartInfo = new ProcessStartInfo {
-						FileName = executable,
-						Arguments = arguments + (firstRun ? string.Empty : Options.CreateLastTestOption(lastRunTest)),
-						UseShellExecute = false
-					}
-				};
+			};
+		}
+
+		static void KeepAlive(Process process) {
+			while (true) {		
 				process.Start();
 				process.WaitForExit();
-				if (process.ExitCode != 0 && lastRunTest != string.Empty) {
-					firstRun = false;
-					Console.Error.WriteLine("Test runner crashed running {0}, recovering...", lastRunTest);
-				} else {
-					break;
+				if (process.ExitCode == 0) {
+					return;
 				}
 			}
-			pipeReader.Abort();
-		}
-
-		static void RunAllTests(Options options) {
-
-			AppDomain.CurrentDomain.UnhandledException += (sender, args) => Environment.Exit(1);
-
-			var output = options.Output;
-			if (options.PreviousRunCrashed) {
-				output.TestCompleted(TestDetails.CreateFailure(options.CrashedTest));
-			}
-					
-#if !DEBUG
-			using (var pipe = new NamedPipeClientStream(options.Parent)) {
-				pipe.Connect();
-				var parentStream = new StreamWriter(pipe) { AutoFlush = true };
-#endif
-				foreach (var file in options.Assemblies) {
-					try {
-						var assembly = new TestAssembly(file, options.Filters);
-						output.TestSuiteStarted(file);
-						assembly.AssemblyErrorHandler += output.AssemblyError;
-						assembly.TestCompleteHandler += output.TestCompleted;
-						assembly.TestStartedHandler += output.TestStarted;
-#if !DEBUG
-						assembly.TestStartedHandler += test => parentStream.WriteLine(test);
-#endif
-						assembly.Test();
-						output.TestSuiteFinished();
-					} catch (Exception e) {
-						output.AssemblyError(e);
-					}
-				}
-				output.TestRunCompleted();
-#if !DEBUG
-			}
-#endif
 		}
 	}
 }

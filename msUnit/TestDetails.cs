@@ -10,7 +10,7 @@ namespace msUnit {
 	public struct TestDetails {
 		public bool Passed;
 		public string Name;
-		public Exception Thrown;
+		public string Thrown;
 		public TimeSpan Time;
 		public string StdOut;
 		public string StdErr;
@@ -19,7 +19,7 @@ namespace msUnit {
 			return new TestDetails {
 				Name = name,
 				Passed = false,
-				Thrown = new Exception("An unknown error caused the test runner to exit"),
+				Thrown = "An unknown error caused the test runner to exit",
 				Time = TimeSpan.MinValue,
 				StdOut = string.Empty,
 				StdErr = string.Empty

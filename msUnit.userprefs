@@ -1,0 +1,31 @@
+﻿<Properties GitUserInfo="UsingGIT">
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="debug-server" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="msUnit/Program.cs">
+    <Files>
+      <File FileName="msUnit/TestRunner.cs" Line="16" Column="22" />
+      <File FileName="msUnit/TestAssembly.cs" Line="16" Column="1" />
+      <File FileName="msUnit/ITestRunner.cs" Line="19" Column="45" />
+      <File FileName="msUnit/ITestOutput.cs" Line="24" Column="3" />
+      <File FileName="msUnit/TestClass.cs" Line="148" Column="53" />
+      <File FileName="msUnit/TestMethod.cs" Line="30" Column="21" />
+      <File FileName="msUnit/TestServer.cs" Line="34" Column="16" />
+      <File FileName="msUnit/Program.cs" Line="21" Column="7" />
+    </Files>
+    <Pads>
+      <Pad Id="ProjectPad">
+        <State expanded="True">
+          <Node name="msUnitRunner" expanded="True">
+            <Node name="Program.cs" selected="True" />
+          </Node>
+        </State>
+      </Pad>
+    </Pads>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore>
+      <Breakpoint file="/home/simon/msUnit/msUnit/Program.cs" line="46" />
+      <Breakpoint file="/home/simon/msUnit/msUnit/TestServer.cs" line="27" />
+    </BreakpointStore>
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+</Properties>

@@ -1,14 +1,15 @@
 ﻿using System;
+using System.ServiceModel;
 
 namespace msUnit {
+
+	[ServiceBehavior(InstanceContextMode = InstanceContextMode.Single)]
 	class ConsoleWriter : ITestOutput {
 
 		private readonly bool _canMoveCursor;
 		private readonly DateTime _start;
 		private int _count;
 		private int _passedCount;
-		private static ConsoleColor _success = ConsoleColor.DarkGreen;
-		private static ConsoleColor _failure = ConsoleColor.DarkRed;
 		private const string _testingFormat = "Testing\t{0}...";
 
 		public ConsoleWriter() {
@@ -27,21 +28,18 @@ namespace msUnit {
 		}
 
 		public void AssemblyError(Exception thrown) {
-			Console.WriteLine(thrown.Message);
+			PrintWithColour(ConsoleColor.DarkRed, thrown.Message);
 		}
 
 		public void TestStarted(string name) {
 			if (_canMoveCursor) {
-				using (new TemporaryConsoleColor(ConsoleColor.Gray)) {
-					Console.WriteLine(_testingFormat, name);
-				}
+				PrintWithColour(ConsoleColor.Gray,_testingFormat, name);
 			}
 		}
 
 		public void TestRunCompleted() {
-			using (new TemporaryConsoleColor(_passedCount == _count ? _success : _failure)) {
-				Console.WriteLine("{0}/{1} tests passed in {2}", _passedCount, _count, DateTime.Now - _start);
-			}
+			PrintWithColour(_passedCount == _count ? ConsoleColor.DarkGreen : ConsoleColor.DarkRed,
+			                "{0}/{1} tests passed in {2}", _passedCount, _count, DateTime.Now - _start);
 		}
 
 		public void TestCompleted(TestDetails details) {
@@ -51,53 +49,43 @@ namespace msUnit {
 				--Console.CursorTop;
 			}
 			++_count;
-			using (new TemporaryConsoleColor(details.Passed ? _success : _failure)) {
-				if (details.Passed) {
-					Console.ForegroundColor = ConsoleColor.DarkGreen;
-					Console.WriteLine("Passed\t" + details.Name);
-					++_passedCount;
-				} else {
-					Console.ForegroundColor = ConsoleColor.DarkRed;
-					Console.WriteLine("Failed\t" + details.Name);
-					Console.WriteLine(details.Thrown);
-					if (!string.IsNullOrWhiteSpace(details.StdOut)) { 
-						Console.WriteLine("stdout:");
-						Console.WriteLine(details.StdOut);
-					}
-					if (!string.IsNullOrWhiteSpace(details.StdErr)) { 
-						Console.WriteLine("stderr:");
-						Console.WriteLine(details.StdErr);
-					}
+			if (details.Passed) {
+				PrintWithColour(ConsoleColor.DarkGreen, "Passed\t" + details.Name);
+				++_passedCount;
+			} else {
+				Console.ForegroundColor = ConsoleColor.DarkRed;
+				Console.WriteLine("Failed\t" + details.Name);
+				Console.WriteLine(details.Thrown);
+				if (!string.IsNullOrWhiteSpace(details.StdOut)) { 
+					Console.WriteLine("stdout:");
+					Console.WriteLine(details.StdOut);
 				}
-			}
-		}
-
-		private class TemporaryConsoleColor : IDisposable {
-			private readonly ConsoleColor _originalColor;
-
-			public TemporaryConsoleColor(ConsoleColor newColour) {
-				_originalColor = Console.ForegroundColor;
-				Console.ForegroundColor = newColour;
-			}
-
-			public void Dispose() {
-				Console.ForegroundColor = _originalColor;
+				if (!string.IsNullOrWhiteSpace(details.StdErr)) { 
+					Console.WriteLine("stderr:");
+					Console.WriteLine(details.StdErr);
+				}
+				Console.ResetColor();
 			}
 		}
 
 		public void TestSuiteStarted(string name) {
-			using (new TemporaryConsoleColor(ConsoleColor.Yellow)) {
-				Console.WriteLine("Testing assembly: {0}", name);
-			}
+			PrintWithColour(ConsoleColor.Yellow, "Testing assembly: {0}", name);
 		}
 
 		public void TestIgnored(string name, string reason) {
-			using (new TemporaryConsoleColor(ConsoleColor.Gray)) {
-				Console.WriteLine("Ignoring test: {0}, {1}", name, reason);
-			}
+			PrintWithColour(ConsoleColor.Gray, "Ignoring test: {0}, {1}", name, reason);
 		}
 
 		public void TestSuiteFinished() {
 		}
+		
+		private void PrintWithColour(ConsoleColor colour, string format, params object[] args) {
+			Console.ForegroundColor = colour;
+			Console.WriteLine(format, args);
+			Console.ResetColor();
+		}
+
+
+		public void Ping() {}
 	}
 }

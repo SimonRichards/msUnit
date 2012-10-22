@@ -8,6 +8,8 @@ namespace msUnit {
 		bool Valid { get; }
 
 		string Error { get; }
+
+		bool Invoke(object instance, out string thrown, params object[] args);
 	}
 
 	class AuxiliaryMethod<T> : IAuxiliaryMethod where T : Attribute {
@@ -51,13 +53,12 @@ namespace msUnit {
 				}
 				break;
 			}
-
 		}
 
-		public bool Invoke(object instance, out Exception thrown, params object[] args) {
+		public bool Invoke(object instance, out string thrown, params object[] args) {
 			thrown = null;
 			if (!Valid) {
-				thrown = new TestException(Error);
+				thrown = new TestException(Error).ToString();
 				return false;
 			}
 			try {
@@ -65,12 +66,12 @@ namespace msUnit {
 					if (method.GetParameters().Length == args.Length) {
 						method.Invoke(instance, args.ToArray());
 					} else {
-						thrown = new TestException(Name + " had wrong number of arguments.");
+						thrown = new TestException(Name + " had wrong number of arguments.").ToString();
 						return false;
 					}
 				}
 			} catch (TargetInvocationException e) {
-				thrown = e.InnerException;
+				thrown = e.InnerException.ToString();
 				return false;
 			}
 			return true;

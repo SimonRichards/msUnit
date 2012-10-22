@@ -7,30 +7,37 @@ using System.Text;
 using System.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections;
+using System.Threading.Tasks;
+using System.Threading;
+using System.Runtime.Serialization;
 
 namespace msUnit {
-	class TestClass {
+
+	[DataContract]
+	public class TestClass {
 		private readonly Type _type;
-		private readonly Action<string> _testStarted;
 		private readonly Func<object> _ctor;
-		private readonly IList<MethodInfo> _testMethods;
 		private readonly AuxiliaryMethod<AssemblyInitializeAttribute> _assemblyInitialize;
 		private readonly AuxiliaryMethod<AssemblyCleanupAttribute> _assemblyCleanup;
 		private readonly AuxiliaryMethod<ClassInitializeAttribute> _classInitialize;
 		private readonly AuxiliaryMethod<ClassCleanupAttribute> _classCleanup;
 		private readonly AuxiliaryMethod<TestInitializeAttribute> _testInitialize;
 		private readonly AuxiliaryMethod<TestCleanupAttribute> _testCleanup;
-		private readonly StringBuilder _stdOutBuffer;
-		private readonly StringBuilder _stdErrBuffer;
 		private readonly IDictionary _context = new Dictionary<int, int>();
+		
+		private InitialisationState _initialisation = InitialisationState.NotInitialised;
+		private string _initialisationException;
 
-		public string Name { get; private set; }
+		[DataMember]
+		public readonly List<TestMethod> Methods;
+
+		[DataMember]
+		public string Name { get; set; }
 
 		private readonly object[] _noArgs = new object[] { };
 
-		public TestClass(Type type, IEnumerable<IFilter> filters, Action<string> testStartedHandler) {
+		public TestClass(Type type, IEnumerable<IFilter> filters) {
 			_type = type;
-			_testStarted = testStartedHandler;
 			var validCtor = type.GetConstructor(new Type[] { });
 			_ctor = validCtor == null ? (Func<object>)null : () => validCtor.Invoke(_noArgs);
 			Name = type.Name;
@@ -40,83 +47,51 @@ namespace msUnit {
 					methods.Insert(0, method);
 				}
 			}
-			_testMethods = (
+			Methods = (
                 from method in methods
                 where method.GetCustomAttributes(typeof(TestMethodAttribute), true).Any()
                 where filters.All(filter => filter.Test(type, method))
-                select method).ToList();
+                select new TestMethod(method)).ToList();
 			_assemblyInitialize = new AuxiliaryMethod<AssemblyInitializeAttribute>(methods,  @static: true);
 			_assemblyCleanup = new AuxiliaryMethod<AssemblyCleanupAttribute>(methods,  @static: true);
 			_classInitialize = new AuxiliaryMethod<ClassInitializeAttribute>(methods,  @static: true);
 			_classCleanup = new AuxiliaryMethod<ClassCleanupAttribute>(methods,  @static: true);
 			_testCleanup = new AuxiliaryMethod<TestCleanupAttribute>(methods);
 			_testInitialize = new AuxiliaryMethod<TestInitializeAttribute>(methods);
-			_stdOutBuffer = new StringBuilder();
-			_stdErrBuffer = new StringBuilder();
 		}
 
-		public IEnumerable<TestDetails> Test() {
-			if (_testMethods.Any()) {
-				string message;
-				return IsClassValid(out message) ? RunTestsAndCleanup() : FailWholeClass(message);
-			}
-			return new TestDetails[] { };
-		}
-
-		private IEnumerable<TestDetails> RunTestsAndCleanup() {
-			Exception thrown;
-			if (!_classInitialize.Invoke(null, out thrown, new [] { new TestContext(_context) })) {
-				return FailWholeClass(_classInitialize.Error);
-			}
-			var testResults = RunTests();
-			
-			if (_classCleanup.Invoke(null, out thrown)) {
-				return testResults;
-			}
-			var cleanupDetails = new TestDetails {
-                Name = _classCleanup + "." + _classCleanup.Name,
-                Passed = false,
-                Thrown = thrown,
-                Time = TimeSpan.Zero
-            };
-			return testResults.Concat(new[] { cleanupDetails });
-		}
-
-		private IEnumerable<TestDetails> RunTests() {
-			var timer = new Stopwatch();
+		public TestDetails RunTest(TestMethod testMethod) {
+			var stdOutBuffer = new StringBuilder();
+			var stdErrBuffer = new StringBuilder();
 			var stdOut = Console.Out;
 			var stdError = Console.Error;
-			foreach (var testMethod in _testMethods) {
-				var details = new TestDetails { Name = _type.FullName + "." + testMethod.Name, Passed = true };
-				_testStarted(details.Name);
-				Console.SetOut(new StringWriter(_stdOutBuffer));
-				Console.SetError(new StringWriter(_stdErrBuffer));
-				timer.Restart();
-				try {
-					object instance = _ctor();
-					details.Passed = _testInitialize.Invoke(instance, out details.Thrown);
-					if (details.Passed) {
-						testMethod.Invoke(instance, _noArgs);
-						details.Passed = _testCleanup.Invoke(instance, out details.Thrown);
-					}
-				} catch (Exception e) {
-					details.Passed = false;
-					details.Thrown = e.InnerException;
+			var details = new TestDetails { Name = _type.FullName + "." + testMethod.Name, Passed = true };
+			Console.SetOut(new StringWriter(stdOutBuffer));
+			Console.SetError(new StringWriter(stdErrBuffer));
+			object instance = null;
+			var timer = Stopwatch.StartNew();
+			try {
+				instance = _ctor();
+				details.Passed = _testInitialize.Invoke(instance, out details.Thrown);
+				if (details.Passed) {
+					testMethod.Invoke(instance);
 				}
-				details.Time = timer.Elapsed;
-				details.StdOut = _stdOutBuffer.ToString();
-				details.StdErr = _stdErrBuffer.ToString();
-				Console.SetOut(stdOut);
-				Console.SetError(stdError);
-				yield return details;
-				_stdOutBuffer.Clear();
-				_stdErrBuffer.Clear();
+			} catch (Exception e) {
+				details.Passed = false;
+				details.Thrown = e.InnerException.ToString();
 			}
+			details.Passed = details.Passed && _testCleanup.Invoke(instance, out details.Thrown);
+			details.Time = timer.Elapsed;
+			details.StdOut = stdOutBuffer.ToString();
+			details.StdErr = stdErrBuffer.ToString();
+			Console.SetOut(stdOut);
+			Console.SetError(stdError);
+			return details;
 		}
 
-		private bool IsClassValid(out string message) {
+		public bool IsSane(out string reason) {
 			if (_ctor == null) {
-				message = Name + " has no no-arg ctors.";
+				reason = new TestException(Name + " has no no-arg ctors.").ToString();
 				return false;
 			}
 			var invalid = new IAuxiliaryMethod[] {
@@ -126,21 +101,41 @@ namespace msUnit {
                 _testInitialize
             }.FirstOrDefault(m => !m.Valid);
 			if (invalid != null) {
-				message = invalid.Error;
+				reason = new TestException(invalid.Error).ToString();
 				return false;
 			}
-			message = string.Empty;
+			reason = string.Empty;
 			return true;
 		}
 
-		private IEnumerable<TestDetails> FailWholeClass(string message) {
-			return _testMethods.Select(method => new TestDetails {
-                Passed = false,
-                Thrown = new TestException(message),
-                Time = TimeSpan.Zero,
-				Name = _type.FullName + "." + method.Name
-            }
-			);
+		public bool ClassInitialize(out string failure) {
+			if (_initialisation == InitialisationState.Initialised) {
+				failure = null;
+				return true;
+			}
+			if (!_classInitialize.Valid) {
+				failure = new TestException(_classInitialize.Error).ToString();
+				return false;
+			} 
+			if (_initialisation == InitialisationState.InitialisationFailed) {
+				failure = _initialisationException.ToString();
+				return false;
+			} 
+			if (_classInitialize.Invoke(null, out failure, new [] { new TestContext(_context) })) {
+				_initialisation = InitialisationState.Initialised;
+				return true;
+			}
+			_initialisationException = failure;
+			_initialisation = InitialisationState.InitialisationFailed;
+			return true;
+		}
+
+		public bool ClassCleanup(out string failure) {
+			if (_classCleanup.Valid) {
+				return _classCleanup.Invoke(null, out failure, new[] { new TestContext(_context) });
+			}
+			failure = string.Empty;
+			return true;
 		}
 
 		public bool HasAssemblyCleanup {
@@ -151,14 +146,24 @@ namespace msUnit {
 			get { return _assemblyInitialize.Exists; }
 		}
 
-		public bool AssemblyInitialize(out Exception thrown) {
+		public bool AssemblyInitialize(out string thrown) {
 			Debug.Assert(HasAssemblyInitialize);
 			return _assemblyInitialize.Invoke(null, out thrown, new TestContext(_context));
 		}
 
-		public bool AssemblyCleanup(out Exception thrown) {
+		public bool AssemblyCleanup(out string thrown) {
 			Debug.Assert(HasAssemblyCleanup);
 			return _assemblyCleanup.Invoke(null, out thrown);
+		}
+		
+		public TestMethod this[string testName] {
+			get {
+				return Methods.First(method => method.Name == testName);
+			}
+		}
+
+		public override string ToString() {
+			return Name;
 		}
 	}
 }

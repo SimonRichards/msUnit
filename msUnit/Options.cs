@@ -1,8 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.ServiceModel;
+using System.ServiceModel.Channels;
 
 namespace msUnit {
+
+	/// <summary>
+	/// Responsible for parsing command line arguments
+	/// </summary>
 	class Options {
 
 		private enum OutputKind {
@@ -12,21 +18,21 @@ namespace msUnit {
 
 		public readonly IList<string> Assemblies;
 		public readonly IList<IFilter> Filters;
-		public readonly bool Error;
-		public readonly bool RunInSeparateProcess;
-		public readonly bool PreviousRunCrashed;
+		public readonly bool HasError;
+		public readonly bool IsChild;
 		public readonly ITestOutput Output;
 		public string CrashedTest;
 		public string Parent;
+		public readonly string PipeName;
 
 		public Options(IList<string> args) {
+			PipeName = Guid.NewGuid().ToString();
 			Assemblies = new List<string>();
 			Filters = new List<IFilter>();
-			Error = !args.Any();
+			HasError = !args.Any();
 			Action<string> argHandler = null;
-			RunInSeparateProcess = true;
-			PreviousRunCrashed = false;
 			CrashedTest = string.Empty;
+			IsChild = false;
 			OutputKind output = OutputKind.Console;
 			foreach (var arg in args) {
 				switch (arg) {
@@ -43,11 +49,10 @@ namespace msUnit {
 						argHandler = s => Filters.Add(new CategoryFilter(s, false));
 						break;
 					case "--parent":
-						RunInSeparateProcess = false;
+						IsChild = true;
 						argHandler = s => Parent = s;
 						break;
 					case "--startfrom":
-						PreviousRunCrashed = true;
 						argHandler = s => {
 							Filters.Add(new SkipUntilFilter(s));
 							CrashedTest = s;
@@ -59,7 +64,7 @@ namespace msUnit {
 						break;
 					default:
 						if (argHandler == null) {
-							Error = true;
+							HasError = true;
 							return;
 						}
 						argHandler(arg);
@@ -83,7 +88,8 @@ namespace msUnit {
 					"--from Assembly1.dll [Assembly2.dll ...] " +
 					"[--named testName1 [testName2...]] " +
 					"[--tagged category1 [category2...]] " +
-					"[--nottagged category3 [category4...]]";
+					"[--nottagged category3 [category4...]]" +
+					"[--teamcity]";
 			}
 		}
 	}

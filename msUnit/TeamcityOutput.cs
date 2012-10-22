@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.ServiceModel;
 using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace msUnit {
+
+	[ServiceBehavior(InstanceContextMode = InstanceContextMode.Single)]
 	public class TeamcityOutput : ITestOutput {
 		private string _suite;
 
@@ -31,11 +34,7 @@ namespace msUnit {
 				Console.WriteLine("##teamcity[testStdErr name='{0}' out='{1}']", details.Name, details.StdErr);
 			}
 			if (!details.Passed) {
-				if (details.Thrown is AssertionException) {
-					Console.WriteLine("##teamcity[testFailed name='{0}' details='{1}']", details.Name, details.Thrown.ToString());
-				} else {
-					Console.WriteLine("##teamcity[testFailed name='{0}' details='{1}']", details.Name, details.Thrown.ToString());
-				}
+				Console.WriteLine("##teamcity[testFailed name='{0}' details='{1}']", details.Name, details.Thrown);
 			}
 			Console.WriteLine("##teamcity[testFinished name='{0}']", details.Name);
 		}
@@ -50,5 +49,7 @@ namespace msUnit {
 		public void TestSuiteFinished() {
 			Console.WriteLine("##teamcity[testSuiteFinished  name='{0}']", _suite);
 		}
+		
+		public void Ping() { }
 	}
 }
