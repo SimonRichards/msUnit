@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.ServiceModel;
 
 namespace msUnit {
+	[ServiceBehavior(InstanceContextMode = InstanceContextMode.Single)]
 	public class TeamcityOutput : ITestOutput {
 		private string _suite;
 
@@ -46,6 +48,9 @@ namespace msUnit {
 		
 		public void TestSuiteFinished() {
 			Console.WriteLine("##teamcity[testSuiteFinished  name='{0}']", _suite);
+		}
+
+		public void Ping() {
 		}
 		
 		private static string Escape(string input) {
