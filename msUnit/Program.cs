@@ -20,18 +20,9 @@ namespace msUnit {
 				new Thread(() => KeepAlive(runner)).Start();
 				new TestServer(options, runner).Start();
 			}
-            /*
-#if SERVER
-			Process runner = CreateChild(args, options.PipeName);
-			new Thread(() => KeepAlive(runner)).Start();
-			new TestServer(options, runner).Start();
-#else			
-			new TestRunner(options).Complete.WaitOne();
-#endif
-             */
 		}
 
-		static Process CreateChild(string[] args, string pipeName) {	
+		static Process CreateChild(string[] args, string pipeName) {
 			return new Process {
 				StartInfo = new ProcessStartInfo {
 					FileName = Assembly.GetEntryAssembly().Location,
@@ -42,7 +33,7 @@ namespace msUnit {
 		}
 
 		static void KeepAlive(Process process) {
-			while (true) {		
+			while (true) {
 				process.Start();
 				process.WaitForExit();
 				if (process.ExitCode == 0) {
